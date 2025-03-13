@@ -24,29 +24,8 @@ for column in df.columns:
     axes[0].legend(loc='best')
     axes[0].grid(True)
 
-def remove_duplicate_events(events, time_tolerance=0.01):
-    cleaned_events = []
-    events.sort()
-    i = 0
-    while i < len(events):
-        current_event = events[i]
-        duplicates = [current_event]
-
-        j = i + 1
-        while j < len(events) and abs(events[j][0] - current_event[0]) <= time_tolerance:
-            duplicates.append(events[j])
-            j += 1
-
-        # Keep only the event with the largest absolute value
-        largest_event = max(duplicates, key=lambda x: abs(x[1]))
-        cleaned_events.append(largest_event)
-
-        i = j
-
-    return cleaned_events
-
 # Baseline Corrected Data
-prominence_value = 100
+prominence_value = 70
 for column in df_corrected.columns:
     axes[1].plot(df_corrected.index.total_seconds(), df_corrected[column], label=column)
     # Find and plot large peaks
@@ -65,7 +44,30 @@ for column in df_corrected.columns:
     axes[1].legend(loc='best')
     axes[1].grid(True)
 
+def remove_duplicate_events(events, time_tolerance=0.01):
+    cleaned_events = []
+    events.sort()  # Ensure events are sorted by time
+    i = 0
+    while i < len(events):
+        current_event = events[i]
+        duplicates = [current_event]
 
+        # Check subsequent events for duplicates within time_tolerance
+        j = i + 1
+        while j < len(events) and abs(events[j][0] - current_event[0]) <= time_tolerance:
+            duplicates.append(events[j])
+            j += 1
+
+        # Keep only the event with the largest absolute value
+        largest_event = max(duplicates, key=lambda x: abs(x[1]))
+        cleaned_events.append(largest_event)
+
+        # Move to the next set of events
+        i = j
+
+    return cleaned_events
+
+# After peak/drop detection, clean the lists:
 peaks_list = remove_duplicate_events(peaks_list)
 drops_list = remove_duplicate_events(drops_list)
 
