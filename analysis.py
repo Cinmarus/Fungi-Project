@@ -4,6 +4,9 @@ import pandas as pd
 
 
 def analyze_fft(data: np.ndarray, dt: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    data = np.array(data, dtype=float)
+    data = np.nan_to_num(data, nan=0.0)
+
     N = len(data)
 
     fft_data = np.fft.fft(data)
@@ -24,8 +27,6 @@ def extract_baseline_and_signal(data: np.ndarray, frequencies: np.ndarray, fft_d
 
     baseline = np.fft.ifft(filtered_fft).real
     offset_signal = data - baseline
-
-    print(baseline)
 
     return baseline, offset_signal
 
@@ -51,3 +52,22 @@ def extract_signal_from_data(df: pd.DataFrame, f_cutoff: float) -> pd.DataFrame:
         df[f"{col}_offset"] = offset_signal
 
     return df
+
+
+def constrain_data_frequencies(data: np.ndarray, low_f_cutoff: float, high_f_cutoff: float, dt: float) -> np.ndarray:
+    data = np.array(data, dtype=float)
+    data = np.nan_to_num(data, nan=0.0)
+
+    N = len(data)
+
+    fft_data = np.fft.fft(data)
+    frequencies = np.fft.fftfreq(N, d=dt)
+
+    # mask = low_f_cutoff <= np.abs(frequencies) <= high_f_cutoff
+    mask = (np.abs(frequencies) >= low_f_cutoff) & (
+        np.abs(frequencies) <= high_f_cutoff)
+    filtered_fft = fft_data * mask
+
+    rebuilt_data = np.fft.ifft(filtered_fft).real
+
+    return rebuilt_data
