@@ -23,6 +23,8 @@ height_opt = - max(voltage)
 peaks1, properties1 = find_peaks(voltage, height=height_opt, distance=1, prominence=0.01, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
 peaks2, properties2 = find_peaks(-voltage, height=height_opt, distance=1, prominence=0.01, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
 
+print(properties1)
+
 peaks1_data = {
     'peak_index': peaks1,
     'height': properties1['peak_heights'] if 'peak_heights' in properties1 else None,
@@ -33,7 +35,8 @@ peaks1_data = {
     'right_base': properties1['right_bases'] if 'right_bases' in properties1 else None,
     'left_ips': properties1['left_ips'] if 'left_ips' in properties1 else None,
     'right_ips': properties1['right_ips'] if 'right_ips' in properties1 else None,
-    'threshold': properties1['threshold'] if 'threshold' in properties1 else None,
+    'left_threshold': properties1['left_thresholds'] if 'left_thresholds' in properties1 else None,
+    'right_threshold': properties1['right_thresholds'] if 'right_thresholds' in properties1 else None,
     'wlen': properties1['wlen'] if 'wlen' in properties1 else None,
     'rel_height': properties1['rel_height'] if 'rel_height' in properties1 else None,
     'plateau_size': properties1['plateau_sizes'] if 'plateau_sizes' in properties1 else None
@@ -49,7 +52,8 @@ peaks2_data = {
     'right_base': properties2['right_bases'] if 'right_bases' in properties2 else None,
     'left_ips': properties2['left_ips'] if 'left_ips' in properties2 else None,
     'right_ips': properties2['right_ips'] if 'right_ips' in properties2 else None,
-    'threshold': properties2['threshold'] if 'threshold' in properties2 else None,
+    'left_threshold': properties2['left_thresholds'] if 'left_thresholds' in properties2 else None,
+    'right_threshold': properties2['right_thresholds'] if 'right_thresholds' in properties2 else None,
     'wlen': properties2['wlen'] if 'wlen' in properties2 else None,
     'rel_height': properties2['rel_height'] if 'rel_height' in properties2 else None,
     'plateau_size': properties2['plateau_sizes'] if 'plateau_sizes' in properties2 else None
