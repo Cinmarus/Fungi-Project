@@ -25,7 +25,7 @@ peaks_negative, properties_negative = find_peaks(-voltage, height=height_opt, di
 
 print(properties_positive)
 
-peaks1_data = {
+peaks_positive_data = {
     'peak_index': peaks_positive,
     'height': properties_positive['peak_heights'] if 'peak_heights' in properties_positive else None,
     'prominence': properties_positive['prominences'] if 'prominences' in properties_positive else None,
@@ -42,7 +42,7 @@ peaks1_data = {
     'plateau_size': properties_positive['plateau_sizes'] if 'plateau_sizes' in properties_positive else None
 }
 
-peaks2_data = {
+peaks_negative_data = {
     'peak_index': peaks_negative,
     'height': properties_negative['peak_heights'] if 'peak_heights' in properties_negative else None,
     'prominence': properties_negative['prominences'] if 'prominences' in properties_negative else None,
@@ -60,19 +60,19 @@ peaks2_data = {
 }
 
 
-df_peaks1 = pd.DataFrame(peaks1_data)
-df_peaks2 = pd.DataFrame(peaks2_data)
+df_peaks_positive = pd.DataFrame(peaks_positive_data)
+df_peaks_negative = pd.DataFrame(peaks_negative_data)
 
-df_peaks = pd.concat([df_peaks1, df_peaks2], ignore_index=True)
+df_peak_complete = pd.concat([df_peaks_positive, df_peaks_negative], ignore_index=True)
 
-df_peaks = df_peaks.sort_values(by='peak_index').reset_index(drop=True)
-peaks = df_peaks['peak_index']
-print(df_peaks)
+df_peak_complete = df_peak_complete.sort_values(by='peak_index').reset_index(drop=True)
+peaks_complete = df_peak_complete['peak_index']
+print(df_peak_complete)
 
-average_amplitude = np.mean(np.abs(voltage[peaks]))
+average_amplitude = np.mean(np.abs(voltage[peaks_complete]))
 print(f"Average Amplitude of Peaks: {average_amplitude:.4f} µV")
 
-time_differences = np.diff(time_numeric[peaks])
+time_differences = np.diff(time_numeric[peaks_complete])
 average_frequency = 1 / np.mean(time_differences)
 print(f"Average frequency of Peaks: {average_frequency:.4f} Hz")
 
@@ -87,7 +87,7 @@ axs[0].legend()
 
 # Plot the detected peaks
 axs[1].plot(time_numeric, voltage, label="Signal", alpha=0.5)
-axs[1].scatter(time_numeric[peaks], voltage[peaks], color="red", label="Detected Peaks", zorder=3)
+axs[1].scatter(time_numeric[peaks_complete], voltage[peaks_complete], color="red", label="Detected Peaks", zorder=3)
 axs[1].set_xlabel("Time (seconds)")
 axs[1].set_ylabel("Voltage (µV)")
 axs[1].set_title("Detected Peaks")
