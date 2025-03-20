@@ -37,8 +37,6 @@ peaks1_data = {
     'right_ips': properties1['right_ips'] if 'right_ips' in properties1 else None,
     'left_threshold': properties1['left_thresholds'] if 'left_thresholds' in properties1 else None,
     'right_threshold': properties1['right_thresholds'] if 'right_thresholds' in properties1 else None,
-    'wlen': properties1['wlen'] if 'wlen' in properties1 else None,
-    'rel_height': properties1['rel_height'] if 'rel_height' in properties1 else None,
     'plateau_size': properties1['plateau_sizes'] if 'plateau_sizes' in properties1 else None
 }
 
@@ -54,8 +52,6 @@ peaks2_data = {
     'right_ips': properties2['right_ips'] if 'right_ips' in properties2 else None,
     'left_threshold': properties2['left_thresholds'] if 'left_thresholds' in properties2 else None,
     'right_threshold': properties2['right_thresholds'] if 'right_thresholds' in properties2 else None,
-    'wlen': properties2['wlen'] if 'wlen' in properties2 else None,
-    'rel_height': properties2['rel_height'] if 'rel_height' in properties2 else None,
     'plateau_size': properties2['plateau_sizes'] if 'plateau_sizes' in properties2 else None
 }
 
