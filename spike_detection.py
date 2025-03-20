@@ -72,6 +72,10 @@ print(df_peaks)
 average_amplitude = np.mean(np.abs(voltage[peaks]))
 print(f"Average Amplitude of Peaks: {average_amplitude:.4f} µV")
 
+time_differences = np.diff(time_numeric[peaks])
+average_frequency = 1 / np.mean(time_differences)
+print(f"Average frequency of Peaks: {average_frequency:.4f} Hz")
+
 # Create a figure with two subplots
 fig, axs = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
 
