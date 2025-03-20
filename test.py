@@ -3,12 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
 import os
-
-
-# matplotlib.use('Agg')
-plt.rcParams['agg.path.chunksize'] = 100000000
-# plt.rcParams['path.simplify'] = True
-# plt.rcParams['path.simplify_threshold'] = 0.1
+from scipy import signal
 
 
 data = pd.read_csv("data/new_data.csv")
@@ -20,11 +15,11 @@ else:
     data.to_pickle("data/data_pickled")
     print("pickled")
 
+data["Time"] -= data["Time"].iloc[0]
 
+totalTime = data["Time"].iloc[-1]-data["Time"].iloc[0]
 
-
-
-
+Fs = len(data["Time"])/totalTime
 
 data["Rolling Average"] = data["Voltage"].rolling(window=100, min_periods=0).mean()
 data["Baseline"] = data["Voltage"].rolling(window=50000, min_periods=0).mean()
@@ -40,20 +35,22 @@ print(data.head())
 # plt.show()
 
 
-NFFT = 65536  # the length of the windowing segments
-Fs = 100/6  # the sampling frequency
+NFFT = 1024  # the length of the windowing segments
 
 fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True)
-ax1.plot(data["Voltage"])
+ax1.plot(data["Time"], data["Voltage"])
 ax1.set_ylabel('Signal')
 
-Pxx, freqs, bins, im = ax2.specgram(data["Voltage"], NFFT=NFFT, noverlap=NFFT//2, Fs=Fs)
-# The `specgram` method returns 4 objects. They are:
-# - Pxx: the periodogram
-# - freqs: the frequency vector
-# - bins: the centers of the time bins
-# - im: the .image.AxesImage instance representing the data in the plot
+
+Pxx, freq, t = matplotlib.mlab.specgram(data["Voltage"], NFFT=NFFT, noverlap=NFFT//2, Fs=Fs)
+
+Pxx_log = 10 * np.log10(Pxx + 1e-10)
+ax2.pcolormesh(t, freq, Pxx_log, cmap='plasma', shading='auto', vmin=np.percentile(Pxx_log, 1), vmax=np.percentile(Pxx_log, 99))
+# ax2.set_yscale('log')
+
 ax2.set_xlabel('Time (s)')
 ax2.set_ylabel('Frequency (Hz)')
 
+
+plt.xlim([data["Time"].iloc[0], data["Time"].iloc[-1]])
 plt.show()
