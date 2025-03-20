@@ -69,7 +69,8 @@ df_peaks = df_peaks.sort_values(by='peak_index').reset_index(drop=True)
 peaks = df_peaks['peak_index']
 print(df_peaks)
 
-
+average_amplitude = np.mean(np.abs(voltage[peaks]))
+print(f"Average Amplitude of Peaks: {average_amplitude:.4f} µV")
 
 # Create a figure with two subplots
 fig, axs = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
