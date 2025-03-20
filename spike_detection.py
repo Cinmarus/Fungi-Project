@@ -17,7 +17,11 @@ voltage = df[voltage_column]
 time_numeric = np.arange(len(time))  # Assuming uniform sampling
 
 # Detect peaks
-peaks, properties = find_peaks(voltage, height=None, distance=None, prominence=None)
+peaks1, properties1 = find_peaks(voltage, height=None, distance=None, prominence=None)
+peaks2, properties1 = find_peaks(-voltage, height=None, distance=None, prominence=None)
+peaks = np.unique(np.concatenate((peaks1, peaks2)))
+
+print(properties1)
 
 # Create a figure with two subplots
 fig, axs = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
