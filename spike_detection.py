@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 
+
 # Load the CSV file
 file_path = "test2.csv"
 df = pd.read_csv(file_path, delimiter=",", skipinitialspace=True)
@@ -17,11 +18,36 @@ voltage = df[voltage_column]
 time_numeric = np.arange(len(time))  # Assuming uniform sampling
 
 # Detect peaks
-peaks1, properties1 = find_peaks(voltage, height=None, distance=None, prominence=None)
-peaks2, properties1 = find_peaks(-voltage, height=None, distance=None, prominence=None)
-peaks = np.unique(np.concatenate((peaks1, peaks2)))
+peaks1, properties1 = find_peaks(voltage, height=1, distance=1, prominence=1, width = 1)
+peaks2, properties2 = find_peaks(-voltage, height=1, distance=1, prominence=1, width = 1)
 
 print(properties1)
+
+peaks1_data = {
+    'peak_index': peaks1,
+    'height': properties1['peak_heights'],
+    'prominence': properties1['prominences'],
+    'width': properties1['widths'] if 'widths' in properties1 else None
+}
+
+peaks2_data = {
+    'peak_index': peaks2,
+    'height': properties2['peak_heights'],
+    'prominence': properties2['prominences'],
+    'width': properties2['widths'] if 'widths' in properties1 else None
+}
+
+
+df_peaks1 = pd.DataFrame(peaks1_data)
+df_peaks2 = pd.DataFrame(peaks2_data)
+
+df_peaks = pd.concat([df_peaks1, df_peaks2], ignore_index=True)
+
+df_peaks = df_peaks.sort_values(by='peak_index').reset_index(drop=True)
+peaks = df_peaks['peak_index']
+print(df_peaks)
+
+
 
 # Create a figure with two subplots
 fig, axs = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
