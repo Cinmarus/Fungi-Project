@@ -17,24 +17,42 @@ voltage = df[voltage_column]
 # Convert time to numerical values if needed (e.g., seconds since start)
 time_numeric = np.arange(len(time))  # Assuming uniform sampling
 
-# Detect peaks
-peaks1, properties1 = find_peaks(voltage, height=1, distance=1, prominence=1, width = 1)
-peaks2, properties2 = find_peaks(-voltage, height=1, distance=1, prominence=1, width = 1)
+height_opt = - max(voltage)
 
-print(properties1)
+# Detect peaks
+peaks1, properties1 = find_peaks(voltage, height=height_opt, distance=1, prominence=0.01, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
+peaks2, properties2 = find_peaks(-voltage, height=height_opt, distance=1, prominence=0.01, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
 
 peaks1_data = {
     'peak_index': peaks1,
-    'height': properties1['peak_heights'],
-    'prominence': properties1['prominences'],
-    'width': properties1['widths'] if 'widths' in properties1 else None
+    'height': properties1['peak_heights'] if 'peak_heights' in properties1 else None,
+    'prominence': properties1['prominences'] if 'prominences' in properties1 else None,
+    'width': properties1['widths'] if 'widths' in properties1 else None,
+    'width_height': properties1['width_heights'] if 'width_heights' in properties1 else None,
+    'left_base': properties1['left_bases'] if 'left_bases' in properties1 else None,
+    'right_base': properties1['right_bases'] if 'right_bases' in properties1 else None,
+    'left_ips': properties1['left_ips'] if 'left_ips' in properties1 else None,
+    'right_ips': properties1['right_ips'] if 'right_ips' in properties1 else None,
+    'threshold': properties1['threshold'] if 'threshold' in properties1 else None,
+    'wlen': properties1['wlen'] if 'wlen' in properties1 else None,
+    'rel_height': properties1['rel_height'] if 'rel_height' in properties1 else None,
+    'plateau_size': properties1['plateau_sizes'] if 'plateau_sizes' in properties1 else None
 }
 
 peaks2_data = {
     'peak_index': peaks2,
-    'height': properties2['peak_heights'],
-    'prominence': properties2['prominences'],
-    'width': properties2['widths'] if 'widths' in properties1 else None
+    'height': properties2['peak_heights'] if 'peak_heights' in properties2 else None,
+    'prominence': properties2['prominences'] if 'prominences' in properties2 else None,
+    'width': properties2['widths'] if 'widths' in properties2 else None,
+    'width_height': properties2['width_heights'] if 'width_heights' in properties2 else None,
+    'left_base': properties2['left_bases'] if 'left_bases' in properties2 else None,
+    'right_base': properties2['right_bases'] if 'right_bases' in properties2 else None,
+    'left_ips': properties2['left_ips'] if 'left_ips' in properties2 else None,
+    'right_ips': properties2['right_ips'] if 'right_ips' in properties2 else None,
+    'threshold': properties2['threshold'] if 'threshold' in properties2 else None,
+    'wlen': properties2['wlen'] if 'wlen' in properties2 else None,
+    'rel_height': properties2['rel_height'] if 'rel_height' in properties2 else None,
+    'plateau_size': properties2['plateau_sizes'] if 'plateau_sizes' in properties2 else None
 }
 
 
