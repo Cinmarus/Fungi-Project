@@ -68,7 +68,60 @@ class peak_analyser:
         df_peaks = df_peaks.sort_values(by='peak_index').reset_index(drop=True)
         print(df_peaks)
         return df_peaks
+    
+    def filter_peaks_by_params(self, height_min=None, prominence_min=None, width_min=None, 
+                            width_height_min=None, left_base_min=None, right_base_min=None, 
+                            left_ips_min=None, right_ips_min=None, left_threshold_min=None,
+                            right_threshold_min=None, plateau_size_min=None, orientation=None):
+       
+        filtered_peaks = self.df_peaks
 
+        if height_min is not None:
+            filtered_peaks = filtered_peaks[filtered_peaks['height'] >= height_min]
+        if prominence_min is not None:
+            filtered_peaks = filtered_peaks[filtered_peaks['prominence'] >= prominence_min]
+        if width_min is not None:
+            filtered_peaks = filtered_peaks[filtered_peaks['width'] >= width_min]
+        if width_height_min is not None:
+            filtered_peaks = filtered_peaks[filtered_peaks['width_height'] >= width_height_min]
+        if left_base_min is not None:
+            filtered_peaks = filtered_peaks[filtered_peaks['left_base'] >= left_base_min]
+        if right_base_min is not None:
+            filtered_peaks = filtered_peaks[filtered_peaks['right_base'] >= right_base_min]
+        if left_ips_min is not None:
+            filtered_peaks = filtered_peaks[filtered_peaks['left_ips'] >= left_ips_min]
+        if right_ips_min is not None:
+            filtered_peaks = filtered_peaks[filtered_peaks['right_ips'] >= right_ips_min]
+        if left_threshold_min is not None:
+            filtered_peaks = filtered_peaks[filtered_peaks['left_threshold'] >= left_threshold_min]
+        if right_threshold_min is not None:
+            filtered_peaks = filtered_peaks[filtered_peaks['right_threshold'] >= right_threshold_min]
+        if plateau_size_min is not None:
+            filtered_peaks = filtered_peaks[filtered_peaks['plateau_size'] >= plateau_size_min]
+        if orientation is not None:
+            filtered_peaks = filtered_peaks[filtered_peaks['orientation'] == orientation]
+
+        self.df_peaks = filtered_peaks  
+        return self.df_peaks
+
+    def compare_peaks(self, parameter):
+        bin = 10
+        if parameter not in self.df_peaks.columns:
+            print(f"Parameter '{parameter}' not found in DataFrame columns.")
+            return
+        if parameter == 'orientation':
+            bin = 2
+        
+        parameter_data = self.df_peaks[parameter]
+        plt.figure(figsize=(10, 6))
+        plt.hist(parameter_data, bins=bin, color='skyblue', edgecolor='black', alpha=0.7)
+
+        plt.xlabel(f"{parameter.capitalize()} Value")
+        plt.ylabel("Frequency")
+        plt.title(f"Histogram of Peak {parameter.capitalize()}")
+
+        plt.tight_layout()
+        plt.show()
 
     def get_average_amplitude(self):
         average_amplitude = np.mean(np.abs(self.voltage[self.df_peaks['peak_index']]))
@@ -107,3 +160,4 @@ class peak_analyser:
 pa = peak_analyser(df, 1)
 pa.get_peaks()
 pa.graph_peaks()
+pa.compare_peaks('height')
