@@ -1,33 +1,46 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
-from analysis import constrain_data_frequencies, extract_signal_from_data
+from analysis import BaselineMethods, DenoiseMethods
 from data_loader import load_data_from_file
-from visualization import visualize_data, visualize_data_baseline, visualize_data_offset
-
-# assumed that the baseline fluctuations have frequencies lower than this
-BASELINE_LOW_CUTOFF_FREQ = 0.001  # [Hz]
-BASELINE_HIGH_CUTOFF_FREQ = 0.05  # [Hz]
-
-file_path = "data/mycelium_data_channel1-2.csv"
-
-data = load_data_from_file(file_path)
-data = data.iloc[:100000]
+from visualization import create_denoised_plot
 
 
-analysis_col = data.columns[-1]
+BASE_LOW_FREQ = 0.005  # [Hz]
+BASE_HIGH_FREQ = 0.001  # [Hz]
 
-# visualize_data_baseline(analysed_data, analysis_col)
-# visualize_data_offset(analysed_data, analysis_col)
+NOISE_CUTOFF_FREQ = 0.1  # [Hz]
 
-col_data = data[analysis_col]
-dt = np.median(np.diff(data["timestamp"].values))
-freq_band_data = constrain_data_frequencies(
-    col_data, BASELINE_LOW_CUTOFF_FREQ, BASELINE_HIGH_CUTOFF_FREQ, dt)
+# "fourier" or "butterworth" or "moving_average"
+BASELINE_METHOD: BaselineMethods = "moving_average"
+DENOISE_METHOD: DenoiseMethods = "lowpass"
 
-plt.plot(data["timestamp"], col_data, label="raw data")
-plt.plot(data["timestamp"], freq_band_data, label="bounded freqs")
+WIND0W_SIZE = 5000  # [-] number of samples in moving average window
 
-plt.legend()
+file_path = "data/new_data.csv"
 
-plt.show()
+raw_df = load_data_from_file(file_path)
+df = raw_df
+
+analysis_col = df.columns[1]
+
+data = df[analysis_col]
+data = np.nan_to_num(data, nan=0.0)
+
+time = df["timestamp"]
+
+dt = np.median(np.diff(time.values))  # [s]
+sampling_rate = 1 / dt  # [Hz]
+
+# cutoff_band = (LOW_FREQ, HIGH_FREQ)
+cutoff_band = BASE_HIGH_FREQ
+
+create_denoised_plot(
+    time,
+    data,
+    sampling_rate,
+    BASELINE_METHOD,
+    DENOISE_METHOD,
+    cutoff_band,
+    NOISE_CUTOFF_FREQ,
+    WIND0W_SIZE
+)
