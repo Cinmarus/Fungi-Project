@@ -1,73 +1,92 @@
-from typing import Tuple
 import numpy as np
-import pandas as pd
+from scipy.signal import butter, filtfilt, medfilt
+from scipy.fftpack import fft, ifft, fftfreq
+
+from typing import Literal, Optional, Tuple, Union
 
 
-def analyze_fft(data: np.ndarray, dt: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    data = np.array(data, dtype=float)
-    data = np.nan_to_num(data, nan=0.0)
-
-    N = len(data)
-
-    fft_data = np.fft.fft(data)
-    frequencies = np.fft.fftfreq(N, d=dt)
-
-    # Normalize the amplitude for analysis (optional normalization)
-    amplitudes = np.abs(fft_data) / N
-
-    return frequencies, amplitudes, fft_data
+BaselineMethods = Literal["fourier", "butterworth", "moving_average"]
+DenoiseMethods = Literal["lowpass", "median", "moving_average"]
 
 
-def extract_baseline_and_signal(data: np.ndarray, frequencies: np.ndarray, fft_data: np.ndarray, f_cutoff: float) -> Tuple[np.ndarray, np.ndarray]:
-    data = np.array(data, dtype=float)
-    data = np.nan_to_num(data, nan=0.0)
+def extract_baseline_and_offset(
+        signal: np.ndarray,
+        sampling_rate: float,
+        method: BaselineMethods = "fourier",
+        cutoff_freq: Optional[Union[float, Tuple[float, float]]] = 0.1,
+        window_size: Optional[int] = 50,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Extract baseline fluctuations and return the offset signal with one of
+    three methods:
+    1. Fourier transform with constrained frequencies
+    2. Butterworth low-pass or band-pass filter
+    3. Moving average
 
-    mask = np.abs(frequencies) <= f_cutoff
-    filtered_fft = fft_data * mask
+    Returns the baseline fluctuations and the signal with the baseline subtracted.
+    """
+    if not (isinstance(cutoff_freq, float) or isinstance(cutoff_freq, tuple)):
+        raise TypeError("cutoff_freq must be a float or a tuple")
 
-    baseline = np.fft.ifft(filtered_fft).real
-    offset_signal = data - baseline
+    if method == "fourier":
+        n = len(signal)
+        freqs = fftfreq(n, d=1 / sampling_rate)
+        fft_signal = fft(signal)
+
+        if isinstance(cutoff_freq, tuple):
+            low, high = cutoff_freq
+            fft_signal[(np.abs(freqs) < low) | (np.abs(freqs) > high)] = 0
+        else:
+            fft_signal[np.abs(freqs) > cutoff_freq] = 0
+
+        baseline = np.real(ifft(fft_signal))
+    elif method == "butterworth":
+        nyquist = 0.5 * sampling_rate
+
+        if isinstance(cutoff_freq, tuple):
+            low, high = cutoff_freq
+            normal_cutoff = [low / nyquist, high / nyquist]
+            b, a = butter(4, normal_cutoff, btype="bandpass", analog=False)
+        else:
+            normal_cutoff = cutoff_freq / nyquist
+            b, a = butter(4, normal_cutoff, btype="lowpass", analog=False)
+
+        baseline = filtfilt(b, a, signal)
+    elif method == "moving_average":
+        if window_size is None:
+            raise ValueError(
+                f"For method '{method}', 'window_size' must be specified")
+
+        baseline = np.convolve(signal, np.ones(
+            window_size) / window_size, mode="same")
+    else:
+        raise ValueError(
+            f"Invalid method '{method}'. Choose from: 'fourier', 'butterworth', or 'moving_average'.")
+
+    offset_signal = signal - baseline
 
     return baseline, offset_signal
 
 
-def extract_signal_from_data(df: pd.DataFrame, f_cutoff: float) -> pd.DataFrame:
-    df = df.copy()
+def denoise_signal(
+        signal: np.ndarray,
+        sampling_rate: float,
+        method: DenoiseMethods,
+        cutoff_freq: Optional[float],
+        window_size: Optional[int],
+) -> np.ndarray:
+    if method == "lowpass":
+        nyquist = 0.5 * sampling_rate
+        normal_cutoff = cutoff_freq / nyquist
+        b, a = butter(4, normal_cutoff, btype="lowpass", analog=False)
+        denoised_signal = filtfilt(b, a, signal)
+    elif method == "median":
+        denoised_signal = medfilt(signal, kernel_size=window_size)
+    elif method == "moving_average":
+        denoised_signal = np.convolve(signal, np.ones(
+            window_size) / window_size, mode="same")
+    else:
+        raise ValueError(
+            f"Invalid method '{method}'. Choose from: 'lowpass', 'median', or 'moving_average'.")
 
-    if "timestamp" not in df.columns:
-        raise ValueError("DataFrame must contain a 'timestamp' column.")
-
-    dt = np.median(np.diff(df["timestamp"].values))
-
-    for col in df.columns:
-        if col == "timestamp":
-            continue
-
-        data = df[col].values.astype(float)
-        frequencies, amplitudes, fft_data = analyze_fft(data, dt)
-        baseline, offset_signal = extract_baseline_and_signal(
-            data, frequencies, fft_data, f_cutoff)
-
-        df[f"{col}_baseline"] = baseline
-        df[f"{col}_offset"] = offset_signal
-
-    return df
-
-
-def constrain_data_frequencies(data: np.ndarray, low_f_cutoff: float, high_f_cutoff: float, dt: float) -> np.ndarray:
-    data = np.array(data, dtype=float)
-    data = np.nan_to_num(data, nan=0.0)
-
-    N = len(data)
-
-    fft_data = np.fft.fft(data)
-    frequencies = np.fft.fftfreq(N, d=dt)
-
-    # mask = low_f_cutoff <= np.abs(frequencies) <= high_f_cutoff
-    mask = (np.abs(frequencies) >= low_f_cutoff) & (
-        np.abs(frequencies) <= high_f_cutoff)
-    filtered_fft = fft_data * mask
-
-    rebuilt_data = np.fft.ifft(filtered_fft).real
-
-    return rebuilt_data
+    return denoised_signal

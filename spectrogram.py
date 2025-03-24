@@ -6,14 +6,20 @@ import os
 from scipy import signal
 
 
-data = pd.read_csv("data/new_data.csv")
 
 if os.path.isfile('data/data_pickled'):
     data = pd.read_pickle("data/data_pickled")
     print("unpickled")
 else:
-    data.to_pickle("data/data_pickled")
-    print("pickled")
+    if os.path.isfile('data/new_data.csv'):
+        data = pd.read_csv("data/new_data.csv")
+        data.to_pickle("data/data_pickled")
+        print("pickled")
+    else: 
+        print("no data file present")
+        exit()
+
+    
 
 data["Time"] -= data["Time"].iloc[0]
 
@@ -29,11 +35,11 @@ flattened = data["Flattened"]
 
 print(data.head())
 
-# plt.plot(data["Voltage"])
-# plt.plot(data["Rolling Average"])
-# plt.plot(data["Baseline"])
-# plt.plot(data["Flattened"])
-# plt.show()
+plt.plot(data["Voltage"])
+plt.plot(data["Rolling Average"])
+plt.plot(data["Baseline"])
+plt.plot(data["Flattened"])
+plt.show()
 
 
 def plotSpectrogram(time, signal):
