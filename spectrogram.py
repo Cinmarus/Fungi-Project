@@ -17,8 +17,8 @@ else:
 
 data["Time"] -= data["Time"].iloc[0]
 
-data["Rolling Average"] = data["Voltage"].rolling(window=100, min_periods=0).mean()
-data["Baseline"] = data["Voltage"].rolling(window=50000, min_periods=0).mean()
+data["Rolling Average"] = data["Voltage"].rolling(window=100, min_periods=0, center=True).mean()
+data["Baseline"] = data["Voltage"].rolling(window=50000, min_periods=0, center=True).mean()
 data["Flattened"] = data["Rolling Average"] - data["Baseline"]
 
 time = data["Time"]
@@ -86,7 +86,7 @@ def plotSpectrogram(time, signal):
     # plt.xlim([x.iloc[0], x.iloc[-1]])
     plt.show()
 
-plotSpectrogram(time, voltage)
+# plotSpectrogram(time, voltage)
 # plotSpectrogram(time, rollingAverage)
 # plotSpectrogram(time, flattened)
 # plotSpectrogram(time, baseline)
