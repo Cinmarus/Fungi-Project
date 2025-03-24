@@ -93,5 +93,10 @@ axs[1].set_ylabel("Voltage (µV)")
 axs[1].set_title("Detected Peaks")
 axs[1].legend()
 
+text_x = time_numeric[-1] * 0.85  # Move text to the upper right
+text_y = max(voltage)  # Adjust to avoid overlap
+axs[1].text(text_x, text_y, f"Avg Amplitude: {average_amplitude:.4f} µV\nAvg Frequency: {average_frequency:.4f} Hz",
+            fontsize=12, color='black', bbox=dict(facecolor='white', alpha=0.7, edgecolor='black'))
+
 plt.tight_layout()
 plt.show()
