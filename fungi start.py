@@ -27,22 +27,29 @@ for column in df.columns:
 # Baseline Corrected Data
 prominence_value = 70
 for column in df_corrected.columns:
-    axes[1].plot(df_corrected.index.total_seconds(), df_corrected[column], label=column)
+    axes[1].plot(df_corrected.index.total_seconds(),
+                 df_corrected[column], label=column)
     # Find and plot large peaks
     peaks, _ = find_peaks(df_corrected[column], prominence=prominence_value)
-    axes[1].plot(df_corrected.index.total_seconds()[peaks], df_corrected[column].iloc[peaks], 'rx')
-    peaks_list.extend(zip(df_corrected.index.total_seconds()[peaks], df_corrected[column].iloc[peaks]))
+    axes[1].plot(df_corrected.index.total_seconds()[peaks],
+                 df_corrected[column].iloc[peaks], 'rx')
+    peaks_list.extend(zip(df_corrected.index.total_seconds()[
+                      peaks], df_corrected[column].iloc[peaks]))
     # Find and plot large drops
     drops, _ = find_peaks(-df_corrected[column], prominence=prominence_value)
-    axes[1].plot(df_corrected.index.total_seconds()[drops], df_corrected[column].iloc[drops], 'gv')
-    drops_list.extend(zip(df_corrected.index.total_seconds()[drops], df_corrected[column].iloc[drops]))
+    axes[1].plot(df_corrected.index.total_seconds()[drops],
+                 df_corrected[column].iloc[drops], 'gv')
+    drops_list.extend(zip(df_corrected.index.total_seconds()[
+                      drops], df_corrected[column].iloc[drops]))
 
-    axes[1].set_title('Baseline Corrected PicoLog Data with Large Peaks and Drops')
+    axes[1].set_title(
+        'Baseline Corrected PicoLog Data with Large Peaks and Drops')
     axes[1].set_xlabel('Time (seconds)')
     axes[1].set_ylabel('Microvolts (µV, baseline corrected)')
     axes[1].axhline(0, color='black', linewidth=0.8, linestyle='--')
     axes[1].legend(loc='best')
     axes[1].grid(True)
+
 
 def remove_duplicate_events(events, time_tolerance=0.01):
     cleaned_events = []
@@ -63,6 +70,7 @@ def remove_duplicate_events(events, time_tolerance=0.01):
         i = j
 
     return cleaned_events
+
 
 peaks_list = remove_duplicate_events(peaks_list)
 drops_list = remove_duplicate_events(drops_list)
