@@ -8,7 +8,9 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)  
 pd.set_option('display.max_colwidth', None) 
 
+#file_path = "test2.csv" 
 file_path = "real_test.csv"
+
 df = pd.read_csv(file_path, delimiter=",", skipinitialspace=True)
 
 class peak_analyser:
