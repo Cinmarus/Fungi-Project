@@ -1,14 +1,15 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from peaks_graph import graph_peaks_bokeh
 from scipy.signal import find_peaks
 
 pd.set_option('display.max_rows', None)  
 pd.set_option('display.max_columns', None)  
-pd.set_option('display.width', None)  
-pd.set_option('display.max_colwidth', None) 
+#pd.set_option('display.width', None)  
+#pd.set_option('display.max_colwidth', None) 
 
-file_path = "test2.csv"
+file_path = "new_data.csv"
 df = pd.read_csv(file_path, delimiter=",", skipinitialspace=True)
 
 class peak_analyser:
@@ -19,7 +20,6 @@ class peak_analyser:
         self.time_numeric = np.arange(len(df_signal[self.time_column]))  # Assuming uniform sampling
         self.voltage = df_signal[self.voltage_column]
         self.df_peaks = self.get_peaks()
-
 
     def get_peaks(self):
         function = self.voltage
@@ -66,7 +66,7 @@ class peak_analyser:
         df_peaks2 = pd.DataFrame(peaks2_data)
         df_peaks = pd.concat([df_peaks1, df_peaks2], ignore_index=True)
         df_peaks = df_peaks.sort_values(by='peak_index').reset_index(drop=True)
-        print(df_peaks)
+        #print(df_peaks)
         return df_peaks
     
     def filter_peaks_by_params(self, height_min=None, prominence_min=None, width_min=None, 
@@ -127,12 +127,10 @@ class peak_analyser:
         average_amplitude = np.mean(np.abs(self.voltage[self.df_peaks['peak_index']]))
         print(f"Average Amplitude of Peaks: {average_amplitude:.4f} µV")
 
-
     def get_average_freq(self):
         time_differences = np.diff(self.time_numeric[self.df_peaks['peak_index']])
         average_frequency = 1 / np.mean(time_differences)
         print(f"Average frequency of Peaks: {average_frequency:.4f} Hz")
-
 
     def graph_peaks(self):
         # Create a figure with two subplots
@@ -159,5 +157,6 @@ class peak_analyser:
 
 pa = peak_analyser(df, 1)
 pa.get_peaks()
-pa.graph_peaks()
-pa.compare_peaks('height')
+pa.filter_peaks_by_params(prominence_min=50)
+graph_peaks_bokeh(pa)
+pa.compare_peaks('prominence')
