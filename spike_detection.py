@@ -8,7 +8,9 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)  
 pd.set_option('display.max_colwidth', None) 
 
-file_path = "test2.csv"
+#file_path = "test2.csv" 
+file_path = "real_test.csv"
+
 df = pd.read_csv(file_path, delimiter=",", skipinitialspace=True)
 
 class peak_analyser:
@@ -23,10 +25,12 @@ class peak_analyser:
 
     def get_peaks(self):
         function = self.voltage
-        height_opt = - max(function)
+        height_opt_pos = np.mean(function) 
+        height_opt_neg = -np.mean(function)
 
-        peaks_positive, properties_positive = find_peaks(function, height=height_opt, distance=1, prominence=0.01, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
-        peaks_negative, properties_negative = find_peaks(-function, height=height_opt, distance=1, prominence=0.01, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
+
+        peaks_positive, properties_positive = find_peaks(function, height=height_opt_pos, distance=1, prominence=0.01, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
+        peaks_negative, properties_negative = find_peaks(-function, height=height_opt_neg, distance=1, prominence=0.01, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
 
 
         peaks1_data = {
