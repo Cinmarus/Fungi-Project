@@ -3,21 +3,23 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from peaks_graph import graph_peaks_bokeh
 from scipy.signal import find_peaks
+from data_loader import load_data_from_file
 
-pd.set_option('display.max_rows', None)  
-pd.set_option('display.max_columns', None)  
-#pd.set_option('display.width', None)  
-#pd.set_option('display.max_colwidth', None) 
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+#pd.set_option('display.width', None)
+#pd.set_option('display.max_colwidth', None)
 
-file_path = "new_data.csv"
-df = pd.read_csv(file_path, delimiter=",", skipinitialspace=True)
+
+file_path = "data/signal_without_baseline.csv"
+df = load_data_from_file(file_path)
 
 class peak_analyser:
     def __init__(self, df_signal, column):
         self.df = df_signal
         self.voltage_column = df_signal.columns[column]
         self.time_column = df_signal.columns[0]
-        self.time_numeric = np.arange(len(df_signal[self.time_column]))  # Assuming uniform sampling
+        self.time_numeric = df_signal[self.time_column]
         self.voltage = df_signal[self.voltage_column]
         self.df_peaks = self.get_peaks()
 
