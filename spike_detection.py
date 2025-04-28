@@ -11,8 +11,6 @@ pd.set_option('display.max_columns', None)
 #pd.set_option('display.max_colwidth', None)
 
 
-file_path = "data/signal_without_baseline.csv"
-df = load_data_from_file(file_path)
 
 class peak_analyser:
     def __init__(self, df_signal, column):
@@ -157,8 +155,3 @@ class peak_analyser:
 
 
 
-pa = peak_analyser(df, 1)
-pa.get_peaks()
-pa.filter_peaks_by_params(prominence_min=50)
-graph_peaks_bokeh(pa)
-pa.compare_peaks('prominence')
