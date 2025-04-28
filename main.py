@@ -52,6 +52,7 @@ def main():
     pa.get_peaks()
     pa.filter_peaks_by_params(prominence_min=50)
     graph_peaks_bokeh(pa)
+    pa.compare_peaks("width")
 
 
 if __name__ == "__main__":
