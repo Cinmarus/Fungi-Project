@@ -50,7 +50,7 @@ def main():
     print("Performing spike detection...")
     pa = peak_analyser(df, df.columns.get_loc("Offset_Signal"))
     pa.get_peaks()
-    pa.filter_peaks_by_params(prominence_min=50)
+    pa.filter_peaks_by_params(prominence_min=50, width_min= 10)
     graph_peaks_bokeh(pa)
     pa.compare_peaks("width")
 
