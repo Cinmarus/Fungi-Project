@@ -29,8 +29,8 @@ class peak_analyser:
         height_opt_neg = -np.mean(function)
 
 
-        peaks_positive, properties_positive = find_peaks(function, height=height_opt_pos, distance=1, prominence=0.01, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
-        peaks_negative, properties_negative = find_peaks(-function, height=height_opt_neg, distance=1, prominence=0.01, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
+        peaks_positive, properties_positive = find_peaks(function, height=height_opt_pos, distance=1, prominence=6, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
+        peaks_negative, properties_negative = find_peaks(-function, height=height_opt_neg, distance=1, prominence=6, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
 
 
         peaks1_data = {
