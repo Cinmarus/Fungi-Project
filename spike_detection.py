@@ -12,6 +12,7 @@ pd.set_option('display.max_columns', None)
 
 
 
+
 class peak_analyser:
     def __init__(self, df_signal, column):
         self.df = df_signal
@@ -23,10 +24,12 @@ class peak_analyser:
 
     def get_peaks(self):
         function = self.voltage
-        height_opt = - max(function)
+        height_opt_pos = np.mean(function) 
+        height_opt_neg = -np.mean(function)
 
-        peaks_positive, properties_positive = find_peaks(function, height=height_opt, distance=1, prominence=0.01, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
-        peaks_negative, properties_negative = find_peaks(-function, height=height_opt, distance=1, prominence=0.01, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
+
+        peaks_positive, properties_positive = find_peaks(function, height=height_opt_pos, distance=1, prominence=6, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
+        peaks_negative, properties_negative = find_peaks(-function, height=height_opt_neg, distance=1, prominence=6, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
 
 
         peaks1_data = {
@@ -122,7 +125,7 @@ class peak_analyser:
 
         plt.tight_layout()
         plt.show()
-
+    
     def get_average_amplitude(self):
         average_amplitude = np.mean(np.abs(self.voltage[self.df_peaks['peak_index']]))
         print(f"Average Amplitude of Peaks: {average_amplitude:.4f} µV")
@@ -153,5 +156,83 @@ class peak_analyser:
         plt.tight_layout()
         plt.show()
 
+    def plot_normalized_amplitude_distribution(self, bins = 6):
+        
+        peak_amplitudes = np.abs(self.voltage[self.df_peaks['peak_index']])
+        peak_amplitudes = np.abs(self.voltage[self.df_peaks['peak_index']])
+        min_val = np.min(peak_amplitudes)
+        max_val = np.max(peak_amplitudes)
+        bin_width = (max_val - min_val) / bins
+        print(f"Bin Width for Amplitude: {bin_width:.4f} µV")
+
+
+        plt.figure(figsize=(10, 6))
+
+        plt.hist(peak_amplitudes, bins=bins, density=True, color='green', edgecolor='black', alpha=0.7)
+
+        plt.xlabel("Peak Amplitude (µV)")
+        plt.ylabel("Probability Density")
+        plt.title("Normalized Probability Distribution of Peak Amplitudes")
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+
+    def plot_normalized_duration_distribution(self, bins = 7):
+        
+        samplingrate = 0.06  
+        
+        peak_durations_seconds = self.df_peaks['width'] * samplingrate
+    
+        min_val = np.min(peak_durations_seconds)
+        max_val = np.max(peak_durations_seconds)
+        bin_width = (max_val - min_val) / bins
+        print(f"Bin Width for Duration: {bin_width:.4f} seconds")
+        
+        
+        peak_durations_seconds = self.df_peaks['width'] * samplingrate
+
+        plt.figure(figsize=(10, 6))
+        
+        plt.hist(peak_durations_seconds, bins=bins, density=True, color='blue', edgecolor='black', alpha=0.7)
+
+        plt.xlabel("Peak Duration (seconds)")
+        plt.ylabel("Probability Density")
+        plt.title("Normalized Probability Distribution of Peak Durations")
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+
+    def plot_normalized_climb_rate_distribution(self, bins = 5):
+        samplingrate = 0.06 
+        
+        climb_rates = []
+        mean_voltage = np.mean(self.voltage)
+        print(f"Mean of the signal: {mean_voltage:.4f}")
+        
+        for peak_idx in self.df_peaks['peak_index']:
+            if peak_idx > 0:
+                if self.voltage.iloc[peak_idx - 1] >= mean_voltage and self.voltage.iloc[peak_idx] > mean_voltage:
+                    voltage_diff = self.voltage.iloc[peak_idx] - self.voltage.iloc[peak_idx - 1]
+                    climb_rate = voltage_diff / samplingrate
+                    climb_rates.append(climb_rate)
+                elif self.voltage.iloc[peak_idx - 1] <= mean_voltage and self.voltage.iloc[peak_idx] < mean_voltage:
+                    voltage_diff = self.voltage.iloc[peak_idx] - self.voltage.iloc[peak_idx - 1]
+                    climb_rate = voltage_diff / samplingrate
+                    climb_rates.append(climb_rate)
+        
+        
+        climb_rates = np.array(climb_rates)
+        bin_width = (np.max(climb_rates) - np.min(climb_rates)) / bins
+        print(f"Bin width for climb rate distribution: {bin_width:.4f} µV/s")
+
+        plt.figure(figsize=(10, 6))
+        plt.hist(climb_rates, bins=bins, density=True, color='red', edgecolor='black', alpha=0.7)
+
+        plt.xlabel("Peak Climb Rate (µV/s)")
+        plt.ylabel("Probability Density")
+        plt.title("Normalized Probability Distribution of Peak Climb Rates")
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
 
 
