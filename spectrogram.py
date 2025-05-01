@@ -4,7 +4,11 @@ import matplotlib.pyplot as plt
 import matplotlib
 import os
 from scipy.signal import spectrogram
+from matplotlib.widgets import TextBox
+import analysis
 
+import Data_visualisation_function
+Data_visualisation_function.set_plt_defaults()
 
 if os.path.isfile('data/data_pickled'):
     data = pd.read_pickle("data/data_pickled")
@@ -18,19 +22,22 @@ else:
         print("no data file present")
         exit()
 
-    
 
 data["Time"] -= data["Time"].iloc[0]
 
-data["Rolling Average"] = data["Voltage"].rolling(window=5000, min_periods=0, center=True).mean()
+data["Rolling Average"] = data["Voltage"].rolling(window=50, min_periods=0, center=True).mean()
 data["Baseline"] = data["Voltage"].rolling(window=5000, min_periods=0, center=True).mean()
 data["Flattened"] = data["Voltage"] - data["Baseline"]
+
 
 time = data["Time"]
 voltage = data["Voltage"]
 rollingAverage = data["Rolling Average"]
 baseline = data["Baseline"]
 flattened = data["Flattened"]
+butterworth = analysis.extract_baseline_and_offset(voltage, 100/6, 'butterworth', cutoff_freq=0.001)[1]
+# fourier = analysis.extract_baseline_and_offset(voltage, 100/6, 'fourier', (0.001, 0.05))[1]
+
 
 print(data.head())
 
@@ -46,7 +53,13 @@ def plotSpectrogram(time, signal, title):
     totalTime = time.iloc[-1]-time.iloc[0]
     Fs = len(time)/totalTime    
 
-    NFFT = 2**16  # the length of the windowing segments
+    NFFT = 2**16  # length of the windowing segments
+
+    # def f(t, amplitude, frequency):
+    #     return amplitude * np.sin(2 * np.pi * float(frequency) * t)
+    
+    # init_amplitude = (np.max(signal) - np.min(signal))/2
+    # init_frequency = 0.0001
 
     fig = plt.figure(constrained_layout=True)
 
@@ -55,6 +68,7 @@ def plotSpectrogram(time, signal, title):
     ax1 = fig.add_subplot(gs[0, 1]) #signal plot
     ax2 = fig.add_subplot(gs[1:, 1]) # spectrogram
     ax3 = fig.add_subplot(gs[1:, 0]) # fourier transform
+    # axSlider = fig.add_subplot(gs[0, 0])
     # textax = fig.add_subplot(gs[0, 0])
         
     # textax.text(0, 0, title)
@@ -64,37 +78,107 @@ def plotSpectrogram(time, signal, title):
     ax1.set_xlim([0, time.iloc[-1]])
     ax1.set_ylabel(r'Voltage [$\mu$V]')
 
+    # line, = ax1.plot(time, f(time, init_amplitude, init_frequency), lw=2)
+
     Pxx, freq, t = matplotlib.mlab.specgram(signal, NFFT=NFFT, noverlap=NFFT*3//4, Fs=Fs)
 
-    Pxx_log = 10 * np.log10(Pxx + 1e-10)
-    pcm = ax2.pcolormesh(t, freq, Pxx_log, cmap='plasma', shading='auto', vmin=np.percentile(Pxx_log, 1), vmax=np.percentile(Pxx_log, 99))
+    Pxx_log = 10 * np.log10(Pxx + 1e-10) # logarithmic amplitude scale
+    pcm = ax2.pcolormesh(t, freq, Pxx_log, cmap='plasma', shading='auto', vmin=np.percentile(Pxx_log, 0.000001), vmax=np.percentile(Pxx_log, 99.99999))
     cb = fig.colorbar(pcm, ax=ax2)
-    cb.set_label('Amplitude')
+    cb.set_label('Amplitude (log scale)')
     ax2.set_xlabel('Time (s)')
     ax2.set_xlim([0, time.iloc[-1]])
 
     yf = np.fft.rfft(signal)
     xf = np.fft.rfftfreq(signal.size, d=1/Fs)
 
-    ax2.set_yscale('log')
-    ax3.set_yscale('log')
+    # ax2.set_yscale('log')
+    # ax3.set_yscale('log')
 
-    ax3.plot(yf, xf)
+    ax3.plot(np.abs(yf), xf)
     ax3.set_xlim([1e3, None])
-    ax3.set_ylim([1e-4, Fs/2])
+    ax3.set_ylim([0, 0.05])
     ax2.set_ylim(ax3.get_ylim())
 
     ax3.set_ylabel('Frequency (Hz)')
     ax3.set_xlabel('Amplitude')
     ax3.set_xscale('log')
 
-    
-
 
     # plt.xlim([x.iloc[0], x.iloc[-1]])
     plt.show()
 
-# plotSpectrogram(time, voltage)
+def saveSpectrogram(time, signal, filename, log=False, NFFT=2**16):
+    totalTime = time.iloc[-1]-time.iloc[0]
+    Fs = len(time)/totalTime    
+
+    # NFFT = 2**18  # length of the windowing segments
+
+    fig, ax = plt.subplots()
+
+
+    Pxx, freq, t = matplotlib.mlab.specgram(signal, NFFT=NFFT, noverlap=NFFT*3//4, Fs=Fs)
+
+    Pxx_log = 10 * np.log10(Pxx + 1e-10) # logarithmic amplitude scale
+    pcm = ax.pcolormesh(t, freq, Pxx_log, cmap='plasma', shading='auto', vmin=np.percentile(Pxx_log, 0.1), vmax=np.percentile(Pxx_log, 99.9))
+    cb = fig.colorbar(pcm, ax=ax)
+    cb.set_label('Amplitude (log scale)')
+    ax.set_xlabel('Time [s]')
+    if log:
+        ax.set_ylabel('Frequency [Hz] (log scale)')
+        ax.set_yscale('log')
+        ax.set_ylim(1e-4, 100/12)
+    else:
+        ax.set_ylabel('Frequency [Hz]')
+    ax.set_xlim([0, time.iloc[-1]])
+
+    plt.tight_layout()
+    plt.savefig(str(filename))
+    plt.close(fig)
+
+def saveSignal(time, signal, filename):
+    fig, ax = plt.subplots()
+    ax.plot(time, signal)
+    ax.set_xlim([0, time.iloc[-1]])
+    ax.set_ylabel(r'Voltage [$\mu$V]')
+    ax.set_xlabel("Time [s]")
+
+    plt.savefig(str(filename))
+    plt.close(fig)
+
+def linLogSpectrograms(time, signal, folderName, signalName, extension, addition='', NFFT=2**16):
+    print("Saving Linear Scale Spectrogram...")
+    saveSpectrogram(time, signal, folderName + signalName + 'SpectrogramLinScale' + addition + extension, log=False, NFFT=NFFT)
+    print("Saving Logarithmic Spectrogram...")
+    saveSpectrogram(time, signal, folderName + signalName + 'SpectrogramLogScale' + addition + extension, log=True, NFFT=NFFT)
+
+def saveSpectrogramSet(time, signal, signalName, folderName='plots', extension='.png', changes=False):
+    print('Starting ' + signalName)
+    if not folderName[-1] == '/':
+        folderName += '/'
+    print("Saving Signal...")
+    saveSignal(time, signal, folderName + signalName + extension)
+    linLogSpectrograms(time, signal, folderName, signalName, extension)
+    if changes is not False:
+        for change in changes:
+            match change[0]:
+                case 'NFFT':
+                    for i in change[1]:
+                        linLogSpectrograms(time, signal, folderName, signalName, extension, NFFT=i, addition='(NFFT=' + str(i) + ')')
+
+
+
+
+# plotSpectrogram(time, voltage, "Voltage")
 # plotSpectrogram(time, rollingAverage, "Rolling Average Spectrogram")
-plotSpectrogram(time, flattened, "Flattened Data")
+# plotSpectrogram(time, flattened, "Flattened Data")
 # plotSpectrogram(time, baseline)
+
+saveSpectrogramSet(time, signal=voltage, signalName='Voltage', changes=[['NFFT', [2**16, 2**18]]])
+saveSpectrogramSet(time, flattened, '5000ptFlattened')
+saveSpectrogramSet(time, butterworth, 'Butterworth')
+saveSpectrogramSet(time, rollingAverage, "50PtRolling")
+
+
+# plt.scatter(time[:100000], rollingAverage[:100000], c=rollingAverage[:100000], cmap='flag')
+# plt.show()
