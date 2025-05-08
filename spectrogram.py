@@ -3,8 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
 import os
-from scipy.signal import spectrogram
-from matplotlib.widgets import TextBox
 import analysis
 
 import Data_visualisation_function
@@ -29,6 +27,12 @@ data["Rolling Average"] = data["Voltage"].rolling(window=50, min_periods=0, cent
 data["Baseline"] = data["Voltage"].rolling(window=5000, min_periods=0, center=True).mean()
 data["Flattened"] = data["Voltage"] - data["Baseline"]
 
+def multipleFourier(signal, frequencies, width):
+    signal = np.array(signal)
+    newSignal = signal - signal
+    for freq in frequencies:
+        newSignal += analysis.extract_baseline_and_offset(signal, 100/6, 'fourier', (freq-width/2, freq+width/2))[0]
+    return newSignal
 
 time = data["Time"]
 voltage = data["Voltage"]
@@ -36,7 +40,8 @@ rollingAverage = data["Rolling Average"]
 baseline = data["Baseline"]
 flattened = data["Flattened"]
 butterworth = analysis.extract_baseline_and_offset(voltage, 100/6, 'butterworth', cutoff_freq=0.001)[1]
-# fourier = analysis.extract_baseline_and_offset(voltage, 100/6, 'fourier', (0.001, 0.05))[1]
+fourier = analysis.extract_baseline_and_offset(np.array(voltage), 100/6, 'fourier', (0.001, 0.05))[0]
+multiFourier = multipleFourier(voltage, frequencies=[0.01666, 0.01993, 0.02327], width=0.00035)
 
 
 print(data.head())
@@ -48,18 +53,13 @@ print(data.head())
 # plt.show()
 
 
+
 def plotSpectrogram(time, signal, title):
 
     totalTime = time.iloc[-1]-time.iloc[0]
     Fs = len(time)/totalTime    
 
     NFFT = 2**16  # length of the windowing segments
-
-    # def f(t, amplitude, frequency):
-    #     return amplitude * np.sin(2 * np.pi * float(frequency) * t)
-    
-    # init_amplitude = (np.max(signal) - np.min(signal))/2
-    # init_frequency = 0.0001
 
     fig = plt.figure(constrained_layout=True)
 
@@ -68,22 +68,15 @@ def plotSpectrogram(time, signal, title):
     ax1 = fig.add_subplot(gs[0, 1]) #signal plot
     ax2 = fig.add_subplot(gs[1:, 1]) # spectrogram
     ax3 = fig.add_subplot(gs[1:, 0]) # fourier transform
-    # axSlider = fig.add_subplot(gs[0, 0])
-    # textax = fig.add_subplot(gs[0, 0])
-        
-    # textax.text(0, 0, title)
-    # textax.axis('off')
 
     ax1.plot(time, signal)
     ax1.set_xlim([0, time.iloc[-1]])
     ax1.set_ylabel(r'Voltage [$\mu$V]')
 
-    # line, = ax1.plot(time, f(time, init_amplitude, init_frequency), lw=2)
-
     Pxx, freq, t = matplotlib.mlab.specgram(signal, NFFT=NFFT, noverlap=NFFT*3//4, Fs=Fs)
 
     Pxx_log = 10 * np.log10(Pxx + 1e-10) # logarithmic amplitude scale
-    pcm = ax2.pcolormesh(t, freq, Pxx_log, cmap='plasma', shading='auto', vmin=np.percentile(Pxx_log, 0.000001), vmax=np.percentile(Pxx_log, 99.99999))
+    pcm = ax2.pcolormesh(t, freq, Pxx_log, cmap='plasma', shading='auto', vmin=np.percentile(Pxx_log, 0.1), vmax=np.percentile(Pxx_log, 99.9))
     cb = fig.colorbar(pcm, ax=ax2)
     cb.set_label('Amplitude (log scale)')
     ax2.set_xlabel('Time (s)')
@@ -92,12 +85,12 @@ def plotSpectrogram(time, signal, title):
     yf = np.fft.rfft(signal)
     xf = np.fft.rfftfreq(signal.size, d=1/Fs)
 
-    # ax2.set_yscale('log')
-    # ax3.set_yscale('log')
+    ax2.set_yscale('log')
+    ax3.set_yscale('log')
 
     ax3.plot(np.abs(yf), xf)
     ax3.set_xlim([1e3, None])
-    ax3.set_ylim([0, 0.05])
+    ax3.set_ylim([1e-4, 8+1/3])
     ax2.set_ylim(ax3.get_ylim())
 
     ax3.set_ylabel('Frequency (Hz)')
@@ -172,13 +165,12 @@ def saveSpectrogramSet(time, signal, signalName, folderName='plots', extension='
 # plotSpectrogram(time, voltage, "Voltage")
 # plotSpectrogram(time, rollingAverage, "Rolling Average Spectrogram")
 # plotSpectrogram(time, flattened, "Flattened Data")
-# plotSpectrogram(time, baseline)
+# plotSpectrogram(time, fourier, 'Fourier')
+# plotSpectrogram(time, multiFourier, "MultiFourier")
 
-saveSpectrogramSet(time, signal=voltage, signalName='Voltage', changes=[['NFFT', [2**16, 2**18]]])
-saveSpectrogramSet(time, flattened, '5000ptFlattened')
-saveSpectrogramSet(time, butterworth, 'Butterworth')
-saveSpectrogramSet(time, rollingAverage, "50PtRolling")
-
-
-# plt.scatter(time[:100000], rollingAverage[:100000], c=rollingAverage[:100000], cmap='flag')
-# plt.show()
+# saveSpectrogramSet(time, signal=voltage, signalName='Voltage', changes=[['NFFT', [2**16, 2**18]]])
+# saveSpectrogramSet(time, flattened, '5000ptFlattened')
+# saveSpectrogramSet(time, butterworth, 'Butterworth')
+# saveSpectrogramSet(time, rollingAverage, "50PtRolling")
+# saveSpectrogramSet(time, fourier, 'Fourier')
+saveSpectrogramSet(time, multiFourier, 'MultiFourier')
