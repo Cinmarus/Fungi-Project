@@ -192,7 +192,7 @@ class peak_analyser:
         plt.tight_layout()
         plt.show()
 
-    def plot_normalized_duration_distribution(self, bin_width = 0.7):
+    def plot_normalized_duration_distribution(self, bin_width = 0.5):
         
         samplingrate = 0.06  
         
