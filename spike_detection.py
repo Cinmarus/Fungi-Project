@@ -204,7 +204,6 @@ class peak_analyser:
         bins = round((max_val - min_val) / bin_width)
         bins2 = (max_val - min_val) / bin_width
         bin_width2 = (max_val - min_val)/bins 
-        print(len(peak_durations_seconds))
         print(bins)
         print(bins2)
         print(f"Bin Width for Amplitude: {bin_width:.4f} s")
@@ -261,7 +260,6 @@ class peak_analyser:
         bins = round((max_val - min_val) / bin_width)
         bins2 = (max_val - min_val) / bin_width
         bin_width2 = (max_val - min_val)/bins 
-        print(len(climb_rates))
         print(bins)
         print(bins2)
         print(f"Bin Width for Amplitude: {bin_width:.4f} µV/s")
