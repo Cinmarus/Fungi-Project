@@ -156,7 +156,7 @@ class peak_analyser:
         plt.tight_layout()
         plt.show()
 
-    def plot_normalized_amplitude_distribution(self, bin_width = 8):
+    def plot_normalized_amplitude_distribution(self, bin_width = 10):
         
         peak_amplitudes = np.abs(self.voltage[self.df_peaks['peak_index']])
         peak_amplitudes = np.abs(self.voltage[self.df_peaks['peak_index']])
