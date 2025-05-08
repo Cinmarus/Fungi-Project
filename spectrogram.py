@@ -27,6 +27,8 @@ data["Rolling Average"] = data["Voltage"].rolling(window=50, min_periods=0, cent
 data["Baseline"] = data["Voltage"].rolling(window=5000, min_periods=0, center=True).mean()
 data["Flattened"] = data["Voltage"] - data["Baseline"]
 
+interestingFrequencies = [0.01666, 0.01993, 0.02327]
+
 def multipleFourier(signal, frequencies, width):
     signal = np.array(signal)
     newSignal = signal - signal
@@ -41,7 +43,7 @@ baseline = data["Baseline"]
 flattened = data["Flattened"]
 butterworth = analysis.extract_baseline_and_offset(voltage, 100/6, 'butterworth', cutoff_freq=0.001)[1]
 fourier = analysis.extract_baseline_and_offset(np.array(voltage), 100/6, 'fourier', (0.001, 0.05))[0]
-multiFourier = multipleFourier(voltage, frequencies=[0.01666, 0.01993, 0.02327], width=0.00035)
+multiFourier = multipleFourier(voltage, frequencies=interestingFrequencies, width=0.00035)
 
 
 print(data.head())
@@ -101,7 +103,7 @@ def plotSpectrogram(time, signal, title):
     # plt.xlim([x.iloc[0], x.iloc[-1]])
     plt.show()
 
-def saveSpectrogram(time, signal, filename, log=False, NFFT=2**16):
+def saveSpectrogram(time, signal, filename, log=False, NFFT=2**16, zoomToInterestingFrequencies=False):
     totalTime = time.iloc[-1]-time.iloc[0]
     Fs = len(time)/totalTime    
 
@@ -123,6 +125,10 @@ def saveSpectrogram(time, signal, filename, log=False, NFFT=2**16):
         ax.set_ylim(1e-4, 100/12)
     else:
         ax.set_ylabel('Frequency [Hz]')
+    if zoomToInterestingFrequencies:
+        xlow = min(interestingFrequencies) - 0.4 * min(interestingFrequencies)
+        xhigh = max(interestingFrequencies) + 0.4 * max(interestingFrequencies)
+        ax.set_ylim(xlow, xhigh)
     ax.set_xlim([0, time.iloc[-1]])
 
     plt.tight_layout()
@@ -173,4 +179,6 @@ def saveSpectrogramSet(time, signal, signalName, folderName='plots', extension='
 # saveSpectrogramSet(time, butterworth, 'Butterworth')
 # saveSpectrogramSet(time, rollingAverage, "50PtRolling")
 # saveSpectrogramSet(time, fourier, 'Fourier')
-saveSpectrogramSet(time, multiFourier, 'MultiFourier')
+# saveSpectrogramSet(time, multiFourier, 'MultiFourier')
+
+saveSpectrogram(time, multiFourier, 'plots/MultiFourierSpectrogramLogZoom', log=True, zoomToInterestingFrequencies=True)
