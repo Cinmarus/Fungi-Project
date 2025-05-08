@@ -1,28 +1,39 @@
-import holoviews as hv
-import pandas as pd
-from bokeh.plotting import output_file, show
+import matplotlib.pyplot as plt
 
-hv.extension('bokeh')
+def graph_peaks(pa):
+    time = pa.time_numeric
+    voltage = pa.voltage
+    peak_indices = pa.df_peaks['peak_index']
 
-def graph_peaks_bokeh(pa):
-    df_signal = pd.DataFrame({
-        'time': pa.time_numeric,
-        'voltage': pa.voltage
-    })
+    plt.figure(figsize=(12, 5))
+    plt.plot(time, voltage, label='Signal')
+    plt.plot(time[peak_indices], voltage[peak_indices], 'ro', label='Peaks')
+    plt.xlabel('Time')
+    plt.ylabel('Voltage')
+    plt.title('Detected Peaks')
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig("Plots/peaks_plot.png")
+    plt.show()
 
-    curve = hv.Curve(df_signal, 'time', 'voltage').opts(
-        width=900, height=400, tools=['hover', 'box_zoom', 'wheel_zoom', 'pan']
-    )
 
-    peaks_df = pd.DataFrame({
-        'time': pa.time_numeric[pa.df_peaks['peak_index']],
-        'voltage': pa.voltage[pa.df_peaks['peak_index']]
-    })
+def graph_multiple_signal(df, time_column, signal_columns):
+    colors = ['blue', 'green', 'red', 'orange', 'purple', 'brown']
+    plt.figure(figsize=(12, 5))
 
-    peaks_scatter = hv.Points(peaks_df, ['time', 'voltage']).opts(color='red', size=5)
+    for idx, signal_column in enumerate(signal_columns):
+        plt.plot(df[time_column], df[signal_column], 
+                 label=signal_column, 
+                 color=colors[idx % len(colors)])
 
-    plot = curve * peaks_scatter
+    plt.xlabel('Time')
+    plt.ylabel('Voltage')
+    plt.title('Comparison of Filtered Signals')
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig("Plots/multiple_signals_plot.png")
+    plt.show()
 
-    output_file("Plots/plot.html")
-    show(hv.render(plot, backend='bokeh'))
-    return plot
+

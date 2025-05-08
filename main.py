@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from peaks_graph import graph_peaks_bokeh
+from peaks_graph import graph_peaks, graph_multiple_signal
 from scipy.signal import find_peaks, savgol_filter
 from data_loader import load_data_from_file
 from spike_detection import peak_analyser
@@ -15,6 +15,7 @@ def main():
     df = load_data_from_file(file_path)
     print("Data loaded successfully!")
     print(df.head())  # Display the first few rows of the data
+    #df = df.iloc[:13000000, :]
 
     print("Calculating sampling rate...")
     # Replace "timestamp" with the correct column name if different
@@ -25,12 +26,43 @@ def main():
     # Extract baseline and offset signal
     print("Extracting baseline and offset signal...")
     try:
-        baseline, offset_signal = extract_baseline_and_offset(
+        baseline_fourier, offset_signal_fourier = extract_baseline_and_offset(
             # Replace "Voltage" with the correct column name if different
-            df.iloc[:, 1],
+            df.iloc[:, 1].to_numpy(),
+            sampling_rate=sampling_rate,
+            method="fourier",  # Example method
+            window_size=500,  # Example window size
+            cutoff_freq=(0.005, 3)  # Example cutoff frequency
+        )
+
+        print("Baseline and offset signal extracted!")
+    except AttributeError as e:
+        print(f"Error: {e}")
+        return
+
+    try:
+        baseline_butterworth, offset_signal_butterworth = extract_baseline_and_offset(
+            # Replace "Voltage" with the correct column name if different
+            df.iloc[:, 1].to_numpy(),
+            sampling_rate=sampling_rate,
+            method="butterworth",  # Example method
+            window_size=500,  # Example window size
+            cutoff_freq=(0.005, 3)  # Example cutoff frequency
+        )
+
+        print("Baseline and offset signal extracted!")
+    except AttributeError as e:
+        print(f"Error: {e}")
+        return
+    
+    try:
+        baseline_mov_avg, offset_signal_mov_avg = extract_baseline_and_offset(
+            # Replace "Voltage" with the correct column name if different
+            df.iloc[:, 1].to_numpy(),
             sampling_rate=sampling_rate,
             method="moving_average",  # Example method
-            window_size=5000  # Example window size
+            window_size=500,  # Example window size
+            cutoff_freq=(0.005, 3)  # Example cutoff frequency
         )
 
         print("Baseline and offset signal extracted!")
@@ -39,20 +71,25 @@ def main():
         return
 
     # denoise the offset signal
-    denoised_offset = savgol_filter(offset_signal, 50, 3)
+    original_signal = df.iloc[:, 1]
+    offset_savgol = savgol_filter(original_signal, 50, 3)
 
     # Add the offset signal to the DataFrame for further analysis
-    df["Offset_Signal"] = denoised_offset
-    print(df.head())  # Display the updated DataFrame
+    df["savgol"] = offset_savgol - baseline_mov_avg
+    df["fourier"] = offset_signal_fourier - baseline_mov_avg
+    df["butterworth"] = offset_signal_butterworth - baseline_mov_avg
+    df["moving_average"] = original_signal - baseline_mov_avg
 
     # Continue with further analysis (e.g., spike detection, visualization, etc.)
     # Example: Perform spike detection
     print("Performing spike detection...")
-    pa = peak_analyser(df, df.columns.get_loc("Offset_Signal"))
-    pa.get_peaks()
-    pa.filter_peaks_by_params(prominence_min=50, width_min= 10)
-    graph_peaks_bokeh(pa)
-    pa.compare_peaks("width")
+    #pa = peak_analyser(df, df.columns.get_loc("Offset_Signal"))
+    #pa.get_peaks()
+    #pa.filter_peaks_by_params(prominence_min=50, width_min= 10)
+    #graph_peaks(pa)
+    #pa.compare_peaks("width")
+
+    graph_multiple_signal(df, time_column="timestamp", signal_columns=["moving_average", "butterworth", "fourier","savgol"])
 
 
 if __name__ == "__main__":
