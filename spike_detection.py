@@ -156,14 +156,19 @@ class peak_analyser:
         plt.tight_layout()
         plt.show()
 
-    def plot_normalized_amplitude_distribution(self, bins = 6):
+    def plot_normalized_amplitude_distribution(self, bin_width = 8):
         
         peak_amplitudes = np.abs(self.voltage[self.df_peaks['peak_index']])
         peak_amplitudes = np.abs(self.voltage[self.df_peaks['peak_index']])
         min_val = np.min(peak_amplitudes)
         max_val = np.max(peak_amplitudes)
-        bin_width = (max_val - min_val) / bins
+        bins = round((max_val - min_val) / bin_width)
+        bins2 = (max_val - min_val) / bin_width
+        bin_width2 = (max_val - min_val)/bins 
+        print(bins)
+        print(bins2)
         print(f"Bin Width for Amplitude: {bin_width:.4f} µV")
+        print(f"Bin Width for Amplitude: {bin_width2:.4f} µV")
 
 
         plt.figure(figsize=(10, 6))
@@ -173,11 +178,21 @@ class peak_analyser:
         plt.xlabel("Peak Amplitude (µV)")
         plt.ylabel("Probability Density")
         plt.title("Normalized Probability Distribution of Peak Amplitudes")
+
+        plt.text(
+        x=max_val, 
+        y=plt.gca().get_ylim()[1] * 0.95, 
+        s=f"Bin width: {bin_width:.2f} µV",
+        ha='right',
+        va='top',
+        fontsize=10,
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
         plt.grid(True)
         plt.tight_layout()
         plt.show()
 
-    def plot_normalized_duration_distribution(self, bins = 7):
+    def plot_normalized_duration_distribution(self, bin_width = 0.7):
         
         samplingrate = 0.06  
         
@@ -185,8 +200,13 @@ class peak_analyser:
     
         min_val = np.min(peak_durations_seconds)
         max_val = np.max(peak_durations_seconds)
-        bin_width = (max_val - min_val) / bins
-        print(f"Bin Width for Duration: {bin_width:.4f} seconds")
+        bins = round((max_val - min_val) / bin_width)
+        bins2 = (max_val - min_val) / bin_width
+        bin_width2 = (max_val - min_val)/bins 
+        print(bins)
+        print(bins2)
+        print(f"Bin Width for Amplitude: {bin_width:.4f} s")
+        print(f"Bin Width for Amplitude: {bin_width2:.4f} s")
         
         
         peak_durations_seconds = self.df_peaks['width'] * samplingrate
@@ -198,11 +218,23 @@ class peak_analyser:
         plt.xlabel("Peak Duration (seconds)")
         plt.ylabel("Probability Density")
         plt.title("Normalized Probability Distribution of Peak Durations")
+        plt.xlim(0, 10)
+
+        plt.text(
+        x=10*0.95, 
+        y=plt.gca().get_ylim()[1] * 0.95, 
+        s=f"Bin width: {bin_width:.2f} s",
+        ha='right',
+        va='top',
+        fontsize=10,
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
         plt.grid(True)
         plt.tight_layout()
+        
         plt.show()
 
-    def plot_normalized_climb_rate_distribution(self, bins = 5):
+    def plot_normalized_climb_rate_distribution(self, bin_width = 2):
         samplingrate = 0.06 
         
         climb_rates = []
@@ -222,8 +254,16 @@ class peak_analyser:
         
         
         climb_rates = np.array(climb_rates)
-        bin_width = (np.max(climb_rates) - np.min(climb_rates)) / bins
-        print(f"Bin width for climb rate distribution: {bin_width:.4f} µV/s")
+        min_val = np.min(climb_rates)
+        max_val = np.max(climb_rates)
+        bins = round((max_val - min_val) / bin_width)
+        bins2 = (max_val - min_val) / bin_width
+        bin_width2 = (max_val - min_val)/bins 
+        print(bins)
+        print(bins2)
+        print(f"Bin Width for Amplitude: {bin_width:.4f} µV/s")
+        print(f"Bin Width for Amplitude: {bin_width2:.4f} µV/s")
+
 
         plt.figure(figsize=(10, 6))
         plt.hist(climb_rates, bins=bins, density=True, color='red', edgecolor='black', alpha=0.7)
@@ -231,6 +271,16 @@ class peak_analyser:
         plt.xlabel("Peak Climb Rate (µV/s)")
         plt.ylabel("Probability Density")
         plt.title("Normalized Probability Distribution of Peak Climb Rates")
+
+        plt.text(
+        x=max_val, 
+        y=plt.gca().get_ylim()[1] * 0.95, 
+        s=f"Bin width: {bin_width:.2f} µV/s",
+        ha='right',
+        va='top',
+        fontsize=10,
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
         plt.grid(True)
         plt.tight_layout()
         plt.show()
