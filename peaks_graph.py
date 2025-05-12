@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 def graph_peaks(pa):
     time = pa.time_numeric
@@ -79,6 +80,35 @@ def graph_multiple_signal_with_peaks(df, time_column, signal_columns, peak_analy
     plt.tight_layout()
     plt.savefig("Plots/multiple_signals_plot_with_peaks.png")
     plt.show()
+
+def compare_number_of_peaks_list(methods_names, peak_analyser_instances):
+    if len(methods_names) != len(peak_analyser_instances):
+        print("Error: Number of method names and peak_analyser instances do not match.")
+        return
+
+    num_peaks = [len(pa.df_peaks) for pa in peak_analyser_instances]
+    bar_width = 0.6
+    x_positions = np.arange(len(methods_names))
+
+    plt.figure(figsize=(10, 6)) 
+
+    bars = plt.bar(x_positions, num_peaks, bar_width, color='skyblue')
+
+    plt.xlabel("Filtering Method")
+    plt.ylabel("Number of Detected Peaks")
+    plt.title("Comparison of Number of Peaks by Filtering Method")
+    plt.xticks(x_positions, methods_names)
+
+    for bar in bars:
+        yval = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2, yval, int(yval), va='bottom', ha='center') 
+
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    plt.savefig("Plots/peak_count_comparison_bar_plot_list.png")
+    plt.show()
+
+
 
 
 

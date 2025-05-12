@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from peaks_graph import graph_peaks, graph_multiple_signal, graph_multiple_signal_with_peaks
+from peaks_graph import graph_peaks, graph_multiple_signal, graph_multiple_signal_with_peaks, compare_number_of_peaks_list
 from scipy.signal import find_peaks, savgol_filter
 from data_loader import load_data_from_file
 from spike_detection import peak_analyser
@@ -96,12 +96,10 @@ def main():
     #pa.compare_peaks("width")
 
     #graph_multiple_signal(df, time_column="timestamp", signal_columns=["moving_average", "butterworth", "fourier","savgol"])
-    graph_multiple_signal_with_peaks(
-        df,
-        time_column="timestamp", 
-        signal_columns=["moving_average", "butterworth", "fourier","savgol"],
-        peak_analyser_instances=[pa_moving_avg, pa_butterworth, pa_fourier, pa_savgol]
-    )
+    
+    #graph_multiple_signal_with_peaks(df, time_column="timestamp", signal_columns=["moving_average", "butterworth", "fourier","savgol"],peak_analyser_instances=[pa_moving_avg, pa_butterworth, pa_fourier, pa_savgol])
+
+    compare_number_of_peaks_list(methods_names=["moving_average", "butterworth", "fourier","savgol"], peak_analyser_instances=[pa_moving_avg, pa_butterworth, pa_fourier, pa_savgol])
 
 
 if __name__ == "__main__":
