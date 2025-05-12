@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from peaks_graph import graph_peaks, graph_multiple_signal
+from peaks_graph import graph_peaks, graph_multiple_signal, graph_multiple_signal_with_peaks
 from scipy.signal import find_peaks, savgol_filter
 from data_loader import load_data_from_file
 from spike_detection import peak_analyser
@@ -83,13 +83,25 @@ def main():
     # Continue with further analysis (e.g., spike detection, visualization, etc.)
     # Example: Perform spike detection
     print("Performing spike detection...")
-    #pa = peak_analyser(df, df.columns.get_loc("Offset_Signal"))
-    #pa.get_peaks()
-    #pa.filter_peaks_by_params(prominence_min=50, width_min= 10)
+    pa_moving_avg = peak_analyser(df, df.columns.get_loc("moving_average"))
+    pa_fourier = peak_analyser(df, df.columns.get_loc("fourier"))
+    pa_butterworth = peak_analyser(df, df.columns.get_loc("butterworth"))
+    pa_savgol = peak_analyser(df, df.columns.get_loc("savgol"))
+    pa_moving_avg.get_peaks()
+    pa_fourier.get_peaks()
+    pa_butterworth.get_peaks()
+    pa_savgol.get_peaks()
+    
     #graph_peaks(pa)
     #pa.compare_peaks("width")
 
-    graph_multiple_signal(df, time_column="timestamp", signal_columns=["moving_average", "butterworth", "fourier","savgol"])
+    #graph_multiple_signal(df, time_column="timestamp", signal_columns=["moving_average", "butterworth", "fourier","savgol"])
+    graph_multiple_signal_with_peaks(
+        df,
+        time_column="timestamp", 
+        signal_columns=["moving_average", "butterworth", "fourier","savgol"],
+        peak_analyser_instances=[pa_moving_avg, pa_butterworth, pa_fourier, pa_savgol]
+    )
 
 
 if __name__ == "__main__":
