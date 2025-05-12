@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from analysis import BaselineMethods, DenoiseMethods, denoise_signal, extract_baseline_and_offset
+from Data_visualisation import set_plt_defaults
 
 
 def visualize_data(df: pd.DataFrame) -> None:
@@ -161,7 +162,7 @@ def create_denoised_plot(
         signal: np.ndarray,
         sampling_rate: float,
         baseline_method: BaselineMethods = "fourier",
-        denoise_method: DenoiseMethods = "lowpass",
+        denoise_method: DenoiseMethods = "Lowpass",
         cutoff_freq: Union[float, Tuple[float, float]] = 0.1,
         noise_cutoff: float = 10,
         window_size: int = 50,
@@ -202,6 +203,53 @@ def create_denoised_plot(
     ax.set_title(current_title)
 
     plt.show()
+    print("test")
     print(f"output/denoise_plots/denoise_{denoise_method}_{file_meta}.png")
     # plt.savefig(
     #     f"output/denoise_plots/denoise_{baseline_method}_{file_meta}.png", dpi=300)
+
+def create_filtering_comparison_plot(
+    time: np.ndarray,
+    signal: np.ndarray,
+    sampling_rate: float,
+):
+    set_plt_defaults(12)
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
+    
+
+    min_time = time.min()
+    seconds_from_start = time - min_time
+    days_from_start = seconds_from_start / (60 * 60 * 24)
+
+    baseline1, _ = extract_baseline_and_offset(signal, sampling_rate, "fourier", cutoff_freq=(0.001, 0.05))
+    baseline2, _ = extract_baseline_and_offset(signal, sampling_rate, "butterworth", cutoff_freq=0.05)
+    baseline3, _ = extract_baseline_and_offset(signal, sampling_rate, "moving_average", window_size=5000)
+    baseline4, _ = extract_baseline_and_offset(signal, sampling_rate, "savgol", window_size=80)
+
+    ax1.plot(days_from_start, signal)
+    ax1.plot(days_from_start, baseline1)
+    ax1.set_title("Fourier")
+   
+    ax1.set_ylabel("Voltage [Microvolts]")
+    
+    ax2.plot(days_from_start, signal)
+    ax2.plot(days_from_start, baseline2)
+    ax2.set_title("Butterworth")
+    
+    ax2.set_ylabel("Voltage [Microvolts]")
+    
+    
+    ax3.plot(days_from_start, signal)
+    ax3.plot(days_from_start, baseline3)
+    ax3.set_title("Moving Average")
+    ax3.set_xlabel("Time [Days]")
+    ax3.set_ylabel("Voltage [Microvolts]")
+    
+    
+    ax4.plot(days_from_start, signal)
+    ax4.plot(days_from_start, baseline4)
+    ax4.set_title("Savitzky-Golay")
+    ax4.set_xlabel("Time [Days]")
+    ax4.set_ylabel("Voltage [Microvolts]")
+    
+    plt.show()

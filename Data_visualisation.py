@@ -8,9 +8,9 @@ def set_plt_defaults(font_size=12):
     Args:
         font_size (int): Font size for all text elements (default: 12)
     """
-    # Set the default color cycle to start with light blue and orange
+    # Set the default color cycle to start with light grey and orange
     plt.rcParams['axes.prop_cycle'] = plt.cycler('color', 
-                                                ['#8cc5e3', '#ea801c'])
+                                                ['#b8b8b8', '#1a80bb'])
     
     # Set font sizes
     plt.rcParams['font.size'] = font_size

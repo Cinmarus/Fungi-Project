@@ -1,11 +1,11 @@
 import numpy as np
-from scipy.signal import butter, filtfilt, medfilt
+from scipy.signal import butter, filtfilt, medfilt, savgol_filter
 from scipy.fftpack import fft, ifft, fftfreq
 
 from typing import Literal, Optional, Tuple, Union
 
 
-BaselineMethods = Literal["fourier", "butterworth", "moving_average"]
+BaselineMethods = Literal["fourier", "butterworth", "moving_average", "savgol"]
 DenoiseMethods = Literal["lowpass", "median", "moving_average"]
 
 
@@ -22,6 +22,7 @@ def extract_baseline_and_offset(
     1. Fourier transform with constrained frequencies
     2. Butterworth low-pass or band-pass filter
     3. Moving average
+    4. Savitzky-Golay
 
     Returns the baseline fluctuations and the signal with the baseline subtracted.
     """
@@ -39,7 +40,10 @@ def extract_baseline_and_offset(
         else:
             fft_signal[np.abs(freqs) > cutoff_freq] = 0
 
-        baseline = np.real(ifft(fft_signal))
+        offset_signal = np.real(ifft(fft_signal))
+        baseline = signal - offset_signal
+
+        return baseline, offset_signal
     elif method == "butterworth":
         nyquist = 0.5 * sampling_rate
 
@@ -59,6 +63,11 @@ def extract_baseline_and_offset(
 
         baseline = np.convolve(signal, np.ones(
             window_size) / window_size, mode="same")
+    elif method == "savgol":
+        if window_size is None:
+            raise ValueError(f"The Savitzky-Golay filter requires a window size to be specified!")
+        
+        baseline = savgol_filter(signal, window_size, 3)
     else:
         raise ValueError(
             f"Invalid method '{method}'. Choose from: 'fourier', 'butterworth', or 'moving_average'.")
