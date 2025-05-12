@@ -192,7 +192,7 @@ class peak_analyser:
         plt.tight_layout()
         plt.show()
 
-    def plot_normalized_duration_distribution(self, bin_width = 0.5):
+    def plot_normalized_duration_distribution(self, bin_width = 0.6):
         
         samplingrate = 0.06  
         
@@ -218,10 +218,10 @@ class peak_analyser:
         plt.xlabel("Peak Duration (seconds)")
         plt.ylabel("Probability Density")
         plt.title("Normalized Probability Distribution of Peak Durations")
-        plt.xlim(0, 10)
+        plt.xlim(0, 20)
 
         plt.text(
-        x=10*0.95, 
+        x=20*0.95, 
         y=plt.gca().get_ylim()[1] * 0.95, 
         s=f"Bin width: {bin_width:.2f} s",
         ha='right',
@@ -263,8 +263,7 @@ class peak_analyser:
         print(bins2)
         print(f"Bin Width for Amplitude: {bin_width:.4f} µV/s")
         print(f"Bin Width for Amplitude: {bin_width2:.4f} µV/s")
-
-
+       
         plt.figure(figsize=(10, 6))
         plt.hist(climb_rates, bins=bins, density=True, color='red', edgecolor='black', alpha=0.7)
 
