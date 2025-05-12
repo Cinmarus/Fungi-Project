@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from peaks_graph import graph_peaks_bokeh
 from scipy.signal import find_peaks
 from data_loader import load_data_from_file
 
@@ -28,8 +27,8 @@ class peak_analyser:
         height_opt_neg = -np.mean(function)
 
 
-        peaks_positive, properties_positive = find_peaks(function, height=height_opt_pos, distance=1, prominence=100, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
-        peaks_negative, properties_negative = find_peaks(-function, height=height_opt_neg, distance=1, prominence=100, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
+        peaks_positive, properties_positive = find_peaks(function, height=height_opt_pos, distance=1, prominence=500, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
+        peaks_negative, properties_negative = find_peaks(-function, height=height_opt_neg, distance=1, prominence=500, width = 0.01, wlen = None, plateau_size=0.1, rel_height=0.1, threshold=0)
 
 
         peaks1_data = {
