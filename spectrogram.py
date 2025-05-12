@@ -78,7 +78,7 @@ def plotSpectrogram(time, signal, title, save=False, filename=None, log=False):
     Pxx, freq, t = matplotlib.mlab.specgram(signal, NFFT=NFFT, noverlap=NFFT*3//4, Fs=Fs)
 
     Pxx_log = 10 * np.log10(Pxx + 1e-10) # logarithmic amplitude scale
-    pcm = ax2.pcolormesh(t, freq, Pxx_log, cmap='plasma', shading='auto', vmin=np.percentile(Pxx_log, 0.1), vmax=np.percentile(Pxx_log, 99.9))
+    pcm = ax2.pcolormesh(t, freq, Pxx_log, cmap='plasma', shading='auto', vmin=np.percentile(Pxx_log, 0.01), vmax=np.percentile(Pxx_log, 99.99))
     cb = fig.colorbar(pcm, ax=ax2)
     cb.set_label('Amplitude (log scale)')
     ax2.set_xlabel('Time [s]')
@@ -157,6 +157,23 @@ def saveSignal(time, signal, filename):
     plt.savefig(str(filename))
     plt.close(fig)
 
+def saveFFT(time, signal, filename):
+    totalTime = time.iloc[-1]-time.iloc[0]
+    Fs = len(time)/totalTime    
+    
+    fig, ax = plt.subplots()
+    yf = np.fft.rfft(signal)
+    xf = np.fft.rfftfreq(signal.size, d=1/Fs)
+    ax.plot(xf, np.abs(yf))
+    ax.set_ylim([1e3, None])
+    ax.set_xlim(0, 8+1/3)
+    ax.set_yscale('log')
+    ax.set_ylabel('Amplitude (log scale)')
+    ax.set_xlabel("Frequency [Hz]")
+
+    plt.savefig(str(filename))
+    plt.close(fig)
+
 def linLogSpectrograms(time, signal, folderName, signalName, extension, addition='', NFFT=2**16, big=False):
     if big:
         print("Saving Linear Scale Spectrogram...")
@@ -187,6 +204,8 @@ def saveSpectrogramSet(time, signal, signalName, folderName='plots', extension='
                         linLogSpectrograms(time, signal, folderName, signalName, extension, NFFT=i, addition='(NFFT=' + str(i) + ')')
 
 
+# print(np.mean(voltage))
+# print(np.std(voltage))
 
 
 # plotSpectrogram(time, voltage, "Voltage")
@@ -195,12 +214,14 @@ def saveSpectrogramSet(time, signal, signalName, folderName='plots', extension='
 # plotSpectrogram(time, fourier, 'Fourier')
 # plotSpectrogram(time, multiFourier, "MultiFourier")
 
-saveSpectrogramSet(time, signal=voltage, signalName='Voltage', changes=[['NFFT', [2**16, 2**18]]])
-saveSpectrogramSet(time, flattened, '5000ptFlattened')
-saveSpectrogramSet(time, butterworth, 'Butterworth')
-saveSpectrogramSet(time, rollingAverage, "50PtRolling")
-saveSpectrogramSet(time, fourier, 'Fourier')
-saveSpectrogramSet(time, multiFourier, 'MultiFourier')
+# saveSpectrogramSet(time, signal=voltage, signalName='Voltage', changes=[['NFFT', [2**16, 2**18]]])
+# saveSpectrogramSet(time, flattened, '5000ptFlattened')
+# saveSpectrogramSet(time, butterworth, 'Butterworth')
+# saveSpectrogramSet(time, rollingAverage, "50PtRolling")
+# saveSpectrogramSet(time, fourier, 'Fourier')
+# saveSpectrogramSet(time, multiFourier, 'MultiFourier')
 
 # saveSpectrogram(time, multiFourier, 'plots/MultiFourierSpectrogramLogZoom', log=True, zoomToInterestingFrequencies=True)
-# saveSpectrogramSet(time, voltage, 'Voltage', big=True)
+saveSpectrogramSet(time, voltage, 'Voltage', big=True)
+
+# saveFFT(time, voltage, 'plots/VoltageFFT.png')
