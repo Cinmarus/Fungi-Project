@@ -56,7 +56,7 @@ print(data.head())
 
 
 
-def plotSpectrogram(time, signal, title):
+def plotSpectrogram(time, signal, title, save=False, filename=None, log=False):
 
     totalTime = time.iloc[-1]-time.iloc[0]
     Fs = len(time)/totalTime    
@@ -65,10 +65,10 @@ def plotSpectrogram(time, signal, title):
 
     fig = plt.figure(constrained_layout=True)
 
-    gs = fig.add_gridspec(3, 2)
+    gs = fig.add_gridspec(3, 3)
 
-    ax1 = fig.add_subplot(gs[0, 1]) #signal plot
-    ax2 = fig.add_subplot(gs[1:, 1]) # spectrogram
+    ax1 = fig.add_subplot(gs[0, 1:]) #signal plot
+    ax2 = fig.add_subplot(gs[1:, 1:]) # spectrogram
     ax3 = fig.add_subplot(gs[1:, 0]) # fourier transform
 
     ax1.plot(time, signal)
@@ -81,27 +81,39 @@ def plotSpectrogram(time, signal, title):
     pcm = ax2.pcolormesh(t, freq, Pxx_log, cmap='plasma', shading='auto', vmin=np.percentile(Pxx_log, 0.1), vmax=np.percentile(Pxx_log, 99.9))
     cb = fig.colorbar(pcm, ax=ax2)
     cb.set_label('Amplitude (log scale)')
-    ax2.set_xlabel('Time (s)')
+    ax2.set_xlabel('Time [s]')
     ax2.set_xlim([0, time.iloc[-1]])
 
     yf = np.fft.rfft(signal)
     xf = np.fft.rfftfreq(signal.size, d=1/Fs)
 
-    ax2.set_yscale('log')
-    ax3.set_yscale('log')
-
     ax3.plot(np.abs(yf), xf)
     ax3.set_xlim([1e3, None])
-    ax3.set_ylim([1e-4, 8+1/3])
-    ax2.set_ylim(ax3.get_ylim())
 
-    ax3.set_ylabel('Frequency (Hz)')
-    ax3.set_xlabel('Amplitude')
+    ax3.set_xlabel('Amplitude (log scale)')
     ax3.set_xscale('log')
 
+    if log:
+        ax3.set_ylabel('Frequency [Hz] (log scale)')
+        ax2.set_yscale('log')
+        ax3.set_yscale('log')
+        ax3.set_ylim([1e-4, 8+1/3])
+        ax2.set_ylim(ax3.get_ylim())
+    else:
+        ax3.set_ylabel('Frequency [Hz]')
+        ax3.set_ylim(0, 8+1/3)
+        ax2.set_ylim(ax3.get_ylim())
 
-    # plt.xlim([x.iloc[0], x.iloc[-1]])
-    plt.show()
+    ax1.ticklabel_format(axis='x', style='sci', scilimits=(0, 0))
+    ax2.ticklabel_format(axis='x', style='sci', scilimits=(0, 0))
+
+    # plt.tight_layout()
+    if not save:
+        plt.show()
+    elif save:
+        plt.savefig(str(filename))
+        plt.close(fig)
+        
 
 def saveSpectrogram(time, signal, filename, log=False, NFFT=2**16, zoomToInterestingFrequencies=False):
     totalTime = time.iloc[-1]-time.iloc[0]
@@ -145,20 +157,29 @@ def saveSignal(time, signal, filename):
     plt.savefig(str(filename))
     plt.close(fig)
 
-def linLogSpectrograms(time, signal, folderName, signalName, extension, addition='', NFFT=2**16):
-    print("Saving Linear Scale Spectrogram...")
-    saveSpectrogram(time, signal, folderName + signalName + 'SpectrogramLinScale' + addition + extension, log=False, NFFT=NFFT)
-    print("Saving Logarithmic Spectrogram...")
-    saveSpectrogram(time, signal, folderName + signalName + 'SpectrogramLogScale' + addition + extension, log=True, NFFT=NFFT)
+def linLogSpectrograms(time, signal, folderName, signalName, extension, addition='', NFFT=2**16, big=False):
+    if big:
+        print("Saving Linear Scale Spectrogram...")
+        plotSpectrogram(time, signal, signalName, save=True, filename=folderName + signalName + 'BigSpectrogramLinScale' + addition + extension, log=False)
+        print("Saving Logarithmic Spectrogram...")
+        plotSpectrogram(time, signal, signalName, save=True, filename=folderName + signalName + 'BigSpectrogramLogScale' + addition + extension, log=True)
+    else:
+        print("Saving Linear Scale Spectrogram...")
+        saveSpectrogram(time, signal, folderName + signalName + 'SpectrogramLinScale' + addition + extension, log=False, NFFT=NFFT)
+        print("Saving Logarithmic Spectrogram...")
+        saveSpectrogram(time, signal, folderName + signalName + 'SpectrogramLogScale' + addition + extension, log=True, NFFT=NFFT)
 
-def saveSpectrogramSet(time, signal, signalName, folderName='plots', extension='.png', changes=False):
+def saveSpectrogramSet(time, signal, signalName, folderName='plots', extension='.png', changes=False, big=False):
     print('Starting ' + signalName)
     if not folderName[-1] == '/':
         folderName += '/'
     print("Saving Signal...")
     saveSignal(time, signal, folderName + signalName + extension)
-    linLogSpectrograms(time, signal, folderName, signalName, extension)
-    if changes is not False:
+    if not big:
+        linLogSpectrograms(time, signal, folderName, signalName, extension)
+    else: 
+        linLogSpectrograms(time, signal, folderName, signalName, extension, big=big)
+    if changes:
         for change in changes:
             match change[0]:
                 case 'NFFT':
@@ -174,11 +195,12 @@ def saveSpectrogramSet(time, signal, signalName, folderName='plots', extension='
 # plotSpectrogram(time, fourier, 'Fourier')
 # plotSpectrogram(time, multiFourier, "MultiFourier")
 
-# saveSpectrogramSet(time, signal=voltage, signalName='Voltage', changes=[['NFFT', [2**16, 2**18]]])
-# saveSpectrogramSet(time, flattened, '5000ptFlattened')
-# saveSpectrogramSet(time, butterworth, 'Butterworth')
-# saveSpectrogramSet(time, rollingAverage, "50PtRolling")
-# saveSpectrogramSet(time, fourier, 'Fourier')
-# saveSpectrogramSet(time, multiFourier, 'MultiFourier')
+saveSpectrogramSet(time, signal=voltage, signalName='Voltage', changes=[['NFFT', [2**16, 2**18]]])
+saveSpectrogramSet(time, flattened, '5000ptFlattened')
+saveSpectrogramSet(time, butterworth, 'Butterworth')
+saveSpectrogramSet(time, rollingAverage, "50PtRolling")
+saveSpectrogramSet(time, fourier, 'Fourier')
+saveSpectrogramSet(time, multiFourier, 'MultiFourier')
 
-saveSpectrogram(time, multiFourier, 'plots/MultiFourierSpectrogramLogZoom', log=True, zoomToInterestingFrequencies=True)
+# saveSpectrogram(time, multiFourier, 'plots/MultiFourierSpectrogramLogZoom', log=True, zoomToInterestingFrequencies=True)
+# saveSpectrogramSet(time, voltage, 'Voltage', big=True)
