@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import os
 import analysis
+from scipy.signal import savgol_filter
 
 import Data_visualisation_function
 Data_visualisation_function.set_plt_defaults()
@@ -24,6 +25,7 @@ else:
 data["Time"] -= data["Time"].iloc[0]
 
 data["Rolling Average"] = data["Voltage"].rolling(window=50, min_periods=0, center=True).mean()
+data["500pt Rolling Average"] = data["Voltage"].rolling(window=500, min_periods=0, center=True).mean()
 data["Baseline"] = data["Voltage"].rolling(window=5000, min_periods=0, center=True).mean()
 data["Flattened"] = data["Voltage"] - data["Baseline"]
 
@@ -44,6 +46,8 @@ flattened = data["Flattened"]
 butterworth = analysis.extract_baseline_and_offset(voltage, 100/6, 'butterworth', cutoff_freq=0.001)[1]
 fourier = analysis.extract_baseline_and_offset(np.array(voltage), 100/6, 'fourier', (0.001, 0.05))[0]
 multiFourier = multipleFourier(voltage, frequencies=interestingFrequencies, width=0.00035)
+savgol = savgol_filter(voltage, 50, 3)
+savgolOffset = savgol_filter(voltage, 50, 3) - data["500pt Rolling Average"]
 
 
 print(data.head())
@@ -88,7 +92,7 @@ def plotSpectrogram(time, signal, title, save=False, filename=None, log=False):
     xf = np.fft.rfftfreq(signal.size, d=1/Fs)
 
     ax3.plot(np.abs(yf), xf)
-    ax3.set_xlim([1e3, None])
+    ax3.set_xlim([1e2, None])
 
     ax3.set_xlabel('Amplitude (log scale)')
     ax3.set_xscale('log')
@@ -220,8 +224,14 @@ def saveSpectrogramSet(time, signal, signalName, folderName='plots', extension='
 # saveSpectrogramSet(time, rollingAverage, "50PtRolling")
 # saveSpectrogramSet(time, fourier, 'Fourier')
 # saveSpectrogramSet(time, multiFourier, 'MultiFourier')
+# saveSpectrogramSet(time, savgol, 'Savitzky-Golay')
+# saveSpectrogramSet(time, savgolOffset, 'Savitzky-GolayWithOffset')
+
 
 # saveSpectrogram(time, multiFourier, 'plots/MultiFourierSpectrogramLogZoom', log=True, zoomToInterestingFrequencies=True)
-saveSpectrogramSet(time, voltage, 'Voltage', big=True)
+# saveSpectrogram(time, voltage, 'plots/VoltageSpectrogramLogZoom', log=True, zoomToInterestingFrequencies=True)
+# saveSpectrogramSet(time, voltage, 'Voltage', big=True)
+# saveSpectrogramSet(time, savgol, 'Savitzky-Golay', big=True)
+# saveSpectrogramSet(time, savgolOffset, 'Savitzky-GolayWithOffset', big=True)
 
 # saveFFT(time, voltage, 'plots/VoltageFFT.png')
