@@ -158,7 +158,8 @@ class peak_analyser:
     def plot_normalized_amplitude_distribution(self, bin_width = 10):
         
         peak_amplitudes = np.abs(self.voltage[self.df_peaks['peak_index']])
-        peak_amplitudes = np.abs(self.voltage[self.df_peaks['peak_index']])
+        mean = np.mean(peak_amplitudes)
+        std = np.std(peak_amplitudes)
         min_val = np.min(peak_amplitudes)
         max_val = np.max(peak_amplitudes)
         bins = round((max_val - min_val) / bin_width)
@@ -188,6 +189,24 @@ class peak_analyser:
         fontsize=10,
         bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
     )
+        plt.text(
+        x= max_val, 
+        y=plt.gca().get_ylim()[1] * 0.9, 
+        s=f" μ: {mean:.2f} µV",
+        ha='right',
+        va='top',
+        fontsize=10,
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
+        plt.text(
+        x= max_val, 
+        y=plt.gca().get_ylim()[1] * 0.85, 
+        s=f"σ: {std:.2f} µV",
+        ha='right',
+        va='top',
+        fontsize=10,
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
         plt.grid(True)
         plt.tight_layout()
         plt.show()
@@ -197,6 +216,9 @@ class peak_analyser:
         samplingrate = 0.06  
         
         peak_durations_seconds = self.df_peaks['width'] * samplingrate
+        mean = np.mean(peak_durations_seconds)
+        std = np.std(peak_durations_seconds)
+
     
         min_val = np.min(peak_durations_seconds)
         max_val = np.max(peak_durations_seconds)
@@ -229,6 +251,24 @@ class peak_analyser:
         fontsize=10,
         bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
     )
+        plt.text(
+        x= 20*0.95, 
+        y=plt.gca().get_ylim()[1] * 0.9, 
+        s=f" μ: {mean:.2f} s",
+        ha='right',
+        va='top',
+        fontsize=10,
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
+        plt.text(
+        x= 20*0.95, 
+        y=plt.gca().get_ylim()[1] * 0.85, 
+        s=f"σ: {std:.2f} s",
+        ha='right',
+        va='top',
+        fontsize=10,
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
         plt.grid(True)
         plt.tight_layout()
         
@@ -254,6 +294,9 @@ class peak_analyser:
         
         
         climb_rates = np.array(climb_rates)
+        mean = np.mean(climb_rates)
+        std = np.std(climb_rates)
+        print(len(climb_rates))
         min_val = np.min(climb_rates)
         max_val = np.max(climb_rates)
         bins = round((max_val - min_val) / bin_width)
@@ -275,6 +318,24 @@ class peak_analyser:
         x=max_val, 
         y=plt.gca().get_ylim()[1] * 0.95, 
         s=f"Bin width: {bin_width:.2f} µV/s",
+        ha='right',
+        va='top',
+        fontsize=10,
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
+        plt.text(
+        x= max_val, 
+        y=plt.gca().get_ylim()[1] * 0.9, 
+        s=f" μ: {mean:.2f} µV/s",
+        ha='right',
+        va='top',
+        fontsize=10,
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
+        plt.text(
+        x= max_val, 
+        y=plt.gca().get_ylim()[1] * 0.85, 
+        s=f"σ: {std:.2f} µV/s",
         ha='right',
         va='top',
         fontsize=10,
