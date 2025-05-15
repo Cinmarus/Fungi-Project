@@ -507,7 +507,6 @@ class peak_analyser:
         """
         total_days = 9  # Adjust according to your dataset
         peak_times = self.time_numeric.iloc[self.df_peaks['peak_index']].values - self.time_numeric.iloc[0] 
-        print(len(peak_times))
         for day in range(total_days):
             start_time = day * 86400
             end_time = min((day + 1) * 86400, self.time_numeric.iloc[-1]- self.time_numeric.iloc[0])
