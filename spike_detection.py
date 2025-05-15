@@ -154,11 +154,7 @@ class peak_analyser:
 
         plt.tight_layout()
         plt.show()
-    import numpy as np 
-import pandas as pd
-import matplotlib.pyplot as plt
-from scipy.signal import find_peaks
-from data_loader import load_data_from_file
+
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
@@ -386,8 +382,6 @@ class peak_analyser:
         print(f"Bin Width for Amplitude: {bin_width:.4f} s")
         print(f"Bin Width for Amplitude: {bin_width2:.4f} s")
         
-        
-        peak_durations_seconds = self.df_peaks['width'] * samplingrate
 
         plt.figure(figsize=(10, 6))
         
@@ -533,7 +527,7 @@ class peak_analyser:
             print(f"Bin Width for Amplitude: {bin_width2:.4f} s")
 
             plt.figure(figsize=(10, 6))
-            plt.hist(amplitudes, bins=bins, density=True, color='purple', edgecolor='black', alpha=0.7)
+            plt.hist(amplitudes, bins=bins, density=True, color='blue', edgecolor='black', alpha=0.7)
             plt.xlabel("Peak Amplitude (µV)")
             plt.ylabel("Probability Density")
             plt.title(f"Day {day + 1} - Amplitude Distribution")
@@ -582,136 +576,176 @@ class peak_analyser:
 
     def plot_daily_duration_distribution(self, bin_width = 0.6):
         
-        samplingrate = 0.06  
-        
-        peak_durations_seconds = self.df_peaks['width'] * samplingrate
-        mean = np.mean(peak_durations_seconds)
-        std = np.std(peak_durations_seconds)
+        samplingrate = 0.06
+        total_days = 9  # Adjust according to your dataset
+        peak_times = self.time_numeric.iloc[self.df_peaks['peak_index']].values - self.time_numeric.iloc[0] 
+        for day in range(total_days):
+            start_time = day * 86400
+            end_time = min((day + 1) * 86400, self.time_numeric.iloc[-1]- self.time_numeric.iloc[0])
+            # Create a boolean mask for the peak times
+            mask = (peak_times >= start_time) & (peak_times < end_time)
+            valid_indices = np.where(mask)[0]
+            day_peaks = self.df_peaks.iloc[valid_indices]
 
-    
-        min_val = np.min(peak_durations_seconds)
-        max_val = np.max(peak_durations_seconds)
-        bins = round((max_val - min_val) / bin_width)
-        bins2 = (max_val - min_val) / bin_width
-        bin_width2 = (max_val - min_val)/bins 
-        print(bins)
-        print(bins2)
-        print(f"Bin Width for Amplitude: {bin_width:.4f} s")
-        print(f"Bin Width for Amplitude: {bin_width2:.4f} s")
+            if day_peaks.empty:
+                print(f"No peaks found for day {day + 1}.")
+                continue
+          
         
-        
-        peak_durations_seconds = self.df_peaks['width'] * samplingrate
+            peak_durations_seconds = samplingrate * day_peaks['width']
+            mean = np.mean(peak_durations_seconds)
+            std = np.std(peak_durations_seconds)
 
-        plt.figure(figsize=(10, 6))
         
-        plt.hist(peak_durations_seconds, bins=bins, density=True, color='blue', edgecolor='black', alpha=0.7)
+            min_val = np.min(peak_durations_seconds)
+            max_val = np.max(peak_durations_seconds)
+            bins = round((max_val - min_val) / bin_width)
+            bins2 = (max_val - min_val) / bin_width
+            bin_width2 = (max_val - min_val)/bins 
+            print(bins)
+            print(bins2)
+            print(f"Bin Width for Amplitude: {bin_width:.4f} s")
+            print(f"Bin Width for Amplitude: {bin_width2:.4f} s")
+            
 
-        plt.xlabel("Peak Duration (seconds)")
-        plt.ylabel("Probability Density")
-        plt.title("Normalized Probability Distribution of Peak Durations")
-        plt.xlim(0, 20)
+            plt.figure(figsize=(10, 6))
+            plt.hist(peak_durations_seconds, bins=bins, density=True, color='blue', edgecolor='black', alpha=0.7)
+            plt.xlabel("Peak Duration (s)")
+            plt.ylabel("Probability Density")
+            plt.title(f"Day {day + 1} - Duration Distribution")
+            plt.xlim(0, 20)
 
-        plt.text(
-        x=20*0.95, 
-        y=plt.gca().get_ylim()[1] * 0.95, 
-        s=f"Bin width: {bin_width:.2f} s",
-        ha='right',
-        va='top',
-        fontsize=10,
-        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
-    )
-        plt.text(
-        x= 20*0.95, 
-        y=plt.gca().get_ylim()[1] * 0.9, 
-        s=f" μ: {mean:.2f} s",
-        ha='right',
-        va='top',
-        fontsize=10,
-        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
-    )
-        plt.text(
-        x= 20*0.95, 
-        y=plt.gca().get_ylim()[1] * 0.85, 
-        s=f"σ: {std:.2f} s",
-        ha='right',
-        va='top',
-        fontsize=10,
-        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
-    )
-        plt.grid(True)
-        plt.tight_layout()
-        
-        plt.show()
+            plt.text(
+            x=20*0.95, 
+            y=plt.gca().get_ylim()[1] * 0.95, 
+            s=f"Bin width: {bin_width:.2f} s",
+            ha='right',
+            va='top',
+            fontsize=10,
+            bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+        )
+            plt.text(
+            x= 20*0.95, 
+            y=plt.gca().get_ylim()[1] * 0.9, 
+            s=f" μ: {mean:.2f} s",
+            ha='right',
+            va='top',
+            fontsize=10,
+            bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+        )
+            plt.text(
+            x= 20*0.95, 
+            y=plt.gca().get_ylim()[1] * 0.85, 
+            s=f"σ: {std:.2f} s",
+            ha='right',
+            va='top',
+            fontsize=10,
+            bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+        )
+             
+            plt.text(
+            x=  20*0.95, 
+            y=plt.gca().get_ylim()[1] * 0.80, 
+            s=f"Samples: {len(peak_durations_seconds):.2f}",
+            ha='right',
+            va='top',
+            fontsize=10,
+            bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+        )
+            plt.grid(True)
+            plt.tight_layout()
+            
+            plt.show()
 
     def plot_daily_climb_rate_distribution(self, bin_width = 2):
         samplingrate = 0.06 
+        total_days = 9  # Adjust according to your dataset
+        peak_times = self.time_numeric.iloc[self.df_peaks['peak_index']].values - self.time_numeric.iloc[0] 
+        for day in range(total_days):
+            start_time = day * 86400
+            end_time = min((day + 1) * 86400, self.time_numeric.iloc[-1]- self.time_numeric.iloc[0])
+            # Create a boolean mask for the peak times
+            mask = (peak_times >= start_time) & (peak_times < end_time)
+            valid_indices = np.where(mask)[0]
+            day_peaks = self.df_peaks.iloc[valid_indices]
         
-        climb_rates = []
-        mean_voltage = np.mean(self.voltage)
-        print(f"Mean of the signal: {mean_voltage:.4f}")
-        
-        for peak_idx in self.df_peaks['peak_index']:
-            if peak_idx > 0:
-                if self.voltage.iloc[peak_idx - 1] >= mean_voltage and self.voltage.iloc[peak_idx] > mean_voltage:
-                    voltage_diff = self.voltage.iloc[peak_idx] - self.voltage.iloc[peak_idx - 1]
-                    climb_rate = voltage_diff / samplingrate
-                    climb_rates.append(climb_rate)
-                elif self.voltage.iloc[peak_idx - 1] <= mean_voltage and self.voltage.iloc[peak_idx] < mean_voltage:
-                    voltage_diff = self.voltage.iloc[peak_idx] - self.voltage.iloc[peak_idx - 1]
-                    climb_rate = voltage_diff / samplingrate
-                    climb_rates.append(climb_rate)
-        
-        
-        climb_rates = np.array(climb_rates)
-        mean = np.mean(climb_rates)
-        std = np.std(climb_rates)
-        print(len(climb_rates))
-        min_val = np.min(climb_rates)
-        max_val = np.max(climb_rates)
-        bins = round((max_val - min_val) / bin_width)
-        bins2 = (max_val - min_val) / bin_width
-        bin_width2 = (max_val - min_val)/bins 
-        print(bins)
-        print(bins2)
-        print(f"Bin Width for Amplitude: {bin_width:.4f} µV/s")
-        print(f"Bin Width for Amplitude: {bin_width2:.4f} µV/s")
-       
-        plt.figure(figsize=(10, 6))
-        plt.hist(climb_rates, bins=bins, density=True, color='red', edgecolor='black', alpha=0.7)
+            if day_peaks.empty:
+                print(f"No peaks found for day {day + 1}.")
+                continue
+            climb_rates = []
+            mean_voltage = np.mean(self.voltage)
+            print(f"Mean of the signal: {mean_voltage:.4f}")
+            
+            for peak_idx in day_peaks['peak_index']:
+                if peak_idx > 0:
+                    if self.voltage.iloc[peak_idx - 1] >= mean_voltage and self.voltage.iloc[peak_idx] > mean_voltage:
+                        voltage_diff = self.voltage.iloc[peak_idx] - self.voltage.iloc[peak_idx - 1]
+                        climb_rate = voltage_diff / samplingrate
+                        climb_rates.append(climb_rate)
+                    elif self.voltage.iloc[peak_idx - 1] <= mean_voltage and self.voltage.iloc[peak_idx] < mean_voltage:
+                        voltage_diff = self.voltage.iloc[peak_idx] - self.voltage.iloc[peak_idx - 1]
+                        climb_rate = voltage_diff / samplingrate
+                        climb_rates.append(climb_rate)
 
-        plt.xlabel("Peak Climb Rate (µV/s)")
-        plt.ylabel("Probability Density")
-        plt.title("Normalized Probability Distribution of Peak Climb Rates")
+            climb_rates = np.array(climb_rates)
+            mean = np.mean(climb_rates)
+            std = np.std(climb_rates)
+            print(len(climb_rates))
+            min_val = np.min(climb_rates)
+            max_val = np.max(climb_rates)
+            bins = round((max_val - min_val) / bin_width)
+            bins2 = (max_val - min_val) / bin_width
+            bin_width2 = (max_val - min_val)/bins 
+            print(bins)
+            print(bins2)
+            print(f"Bin Width for Amplitude: {bin_width:.4f} µV/s")
+            print(f"Bin Width for Amplitude: {bin_width2:.4f} µV/s")
+        
+            plt.figure(figsize=(10, 6))
+            plt.hist(climb_rates, bins=bins, density=True, color='blue', edgecolor='black', alpha=0.7)
+            plt.xlabel("Peak Climb Rate (µV/s)")
+            plt.ylabel("Probability Density")
+            plt.title(f"Day {day + 1} - Climb Rate Distribution")
 
-        plt.text(
-        x=max_val, 
-        y=plt.gca().get_ylim()[1] * 0.95, 
-        s=f"Bin width: {bin_width:.2f} µV/s",
-        ha='right',
-        va='top',
-        fontsize=10,
-        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
-    )
-        plt.text(
-        x= max_val, 
-        y=plt.gca().get_ylim()[1] * 0.9, 
-        s=f" μ: {mean:.2f} µV/s",
-        ha='right',
-        va='top',
-        fontsize=10,
-        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
-    )
-        plt.text(
-        x= max_val, 
-        y=plt.gca().get_ylim()[1] * 0.85, 
-        s=f"σ: {std:.2f} µV/s",
-        ha='right',
-        va='top',
-        fontsize=10,
-        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
-    )
-        plt.grid(True)
-        plt.tight_layout()
-        plt.show()
+            plt.text(
+            x=max_val, 
+            y=plt.gca().get_ylim()[1] * 0.95, 
+            s=f"Bin width: {bin_width:.2f} µV/s",
+            ha='right',
+            va='top',
+            fontsize=10,
+            bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+        )
+            plt.text(
+            x= max_val, 
+            y=plt.gca().get_ylim()[1] * 0.9, 
+            s=f" μ: {mean:.2f} µV/s",
+            ha='right',
+            va='top',
+            fontsize=10,
+            bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+        )
+            plt.text(
+            x= max_val, 
+            y=plt.gca().get_ylim()[1] * 0.85, 
+            s=f"σ: {std:.2f} µV/s",
+            ha='right',
+            va='top',
+            fontsize=10,
+            bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+        )
+             
+            plt.text(
+            x= max_val, 
+            y=plt.gca().get_ylim()[1] * 0.80, 
+            s=f"Samples: {len(climb_rates):.2f}",
+            ha='right',
+            va='top',
+            fontsize=10,
+            bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+        )
+            plt.grid(True)
+            plt.tight_layout()
+            plt.show()
 
 
