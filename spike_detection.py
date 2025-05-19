@@ -307,6 +307,39 @@ class peak_analyser:
         plt.tight_layout()
         plt.show()
 
+
+    def plot_amplitude_vs_duration_distribution(self):
+
+        samplingrate = 0.06
+        peak_amplitudes = np.abs(self.voltage[self.df_peaks['peak_index']])
+        peak_durations_seconds = self.df_peaks['width'] * samplingrate
+    
+
+        plt.figure(figsize=(10, 6))
+        
+        plt.plot(
+        peak_durations_seconds,
+        peak_amplitudes,
+        'o',
+        color='black',
+        alpha=0.5,
+        label='Fungi Signal'  # This enables the legend entry
+    )
+
+        plt.xlabel("Peak Duration (s)")
+        plt.ylabel("Peak Amplitude (µV)")
+        plt.title("Peak Duration vs Peak Amplitude")
+
+        plt.grid(True)
+
+        plt.legend(loc='upper right', fontsize=12)
+
+        plt.tight_layout()
+        plt.show()
+
+        
+
+
     def plot_normalized_amplitude_distribution(self, bin_width = 10):
         
         peak_amplitudes = np.abs(self.voltage[self.df_peaks['peak_index']])
