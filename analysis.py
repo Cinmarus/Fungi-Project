@@ -14,7 +14,7 @@ def extract_baseline_and_offset(
         sampling_rate: float,
         method: BaselineMethods = "fourier",
         cutoff_freq: Optional[Union[float, Tuple[float, float]]] = 0.1,
-        window_size: Optional[int] = 50,
+        window_size: Optional[int] = 25,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Extract baseline fluctuations and return the offset signal with one of
@@ -67,7 +67,7 @@ def extract_baseline_and_offset(
         if window_size is None:
             raise ValueError(f"The Savitzky-Golay filter requires a window size to be specified!")
         
-        baseline = savgol_filter(signal, window_size, 3)
+        baseline = savgol_filter(signal, window_size, 2)
     else:
         raise ValueError(
             f"Invalid method '{method}'. Choose from: 'fourier', 'butterworth', or 'moving_average'.")

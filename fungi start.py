@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 
 # Load CSV data
-df = pd.read_csv('test2.csv', index_col=0)
+df = pd.read_csv('new_data.csv', index_col=0)
 
 df.index = pd.to_timedelta(df.index)
 

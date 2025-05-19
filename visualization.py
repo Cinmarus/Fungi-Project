@@ -236,7 +236,7 @@ def create_filtering_comparison_plot(
     ax2.plot(days_from_start, baseline2)
     ax2.set_title("Butterworth")
     
-    ax2.set_ylabel("Voltage [Microvolts]")
+
     
     
     ax3.plot(days_from_start, signal)
@@ -250,6 +250,6 @@ def create_filtering_comparison_plot(
     ax4.plot(days_from_start, baseline4)
     ax4.set_title("Savitzky-Golay")
     ax4.set_xlabel("Time [Days]")
-    ax4.set_ylabel("Voltage [Microvolts]")
+
     
     plt.show()
