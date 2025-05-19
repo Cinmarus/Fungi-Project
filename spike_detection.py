@@ -323,7 +323,7 @@ class peak_analyser:
         'o',
         color='black',
         alpha=0.5,
-        label='Fungi Signal'  # This enables the legend entry
+        label='Fungi Signal' 
     )
 
         plt.xlabel("Peak Duration (s)")
