@@ -183,6 +183,10 @@ def create_denoised_plot(
         window_size=window_size
     )
 
+    df_offset = pd.DataFrame({'timestamp': time, 'signal_without_baseline': offset})
+    df_offset.to_csv("data/signal_without_baseline.csv", index=False)
+    print("offset signal saved to data/signal_without_baseline.csv")
+
     fig, ax = plt.subplots(figsize=(12, 8))
 
     # ax.plot(time, signal, label="Raw Signal")
