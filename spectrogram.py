@@ -52,16 +52,7 @@ inverseMultiFourier = voltage - multiFourier
 savgol = savgol_filter(voltage, 50, 3)
 savgolOffset = savgol_filter(voltage, 50, 3) - data["500pt Rolling Average"]
 
-
 print(data.head())
-
-# plt.plot(data["Voltage"])
-# plt.plot(data["Rolling Average"])
-# plt.plot(data["Baseline"])
-# plt.plot(data["Flattened"])
-# plt.show()
-
-
 
 def plotSpectrogram(time, signal, title, save=False, filename=None, log=False):
 
@@ -126,8 +117,6 @@ def saveSpectrogram(time, signal, filename, log=False, NFFT=2**16, zoomToInteres
     totalTime = time.iloc[-1]-time.iloc[0]
     Fs = len(time)/totalTime    
 
-    # NFFT = 2**18  # length of the windowing segments
-
     fig, ax = plt.subplots()
 
 
@@ -159,7 +148,7 @@ def saveSignal(time, signal, filename, save=True):
     ax.plot(time, signal)
     ax.set_xlim([0, time.iloc[-1]])
     ax.set_ylabel(r'Voltage [$\mu$V]')
-    ax.set_xlabel("Time [s]")
+    ax.set_xlabel("Time [days]")
 
     if save:
         plt.savefig(str(filename))
@@ -228,10 +217,10 @@ def saveSpectrogramSet(time, signal, signalName, folderName='plots', extension='
 # plotSpectrogram(time, fourier, 'Fourier')
 # plotSpectrogram(time, multiFourier, "MultiFourier")
 
-# saveSignal(time, inverseMultiFourier, None, save=False)
+# saveSignal(time/(3600*24), voltage, 'plots/VoltageDays', save=True)
 
 # saveSpectrogramSet(time, signal=voltage, signalName='Voltage', changes=[['NFFT', [2**16, 2**18]]])
-# saveSpectrogramSet(time, flattened, '5000ptFlattened', big=True)
+saveSpectrogramSet(time, flattened, '5000ptFlattened', big=True)
 # saveSpectrogramSet(time, baseline, 'Baseline', big=True)
 # saveSpectrogramSet(time, butterworth, 'Butterworth')
 # saveSpectrogramSet(time, rollingAverage, "50PtRolling")
@@ -249,6 +238,6 @@ def saveSpectrogramSet(time, signal, signalName, folderName='plots', extension='
 # saveSpectrogramSet(time, savgol, 'Savitzky-Golay', big=True)
 # saveSpectrogramSet(time, savgolOffset, 'Savitzky-GolayWithOffset', big=True)
 
-# saveFFT(time, voltage, 'plots/VoltageFFT.png')
+# saveFFT(time, voltage, 'plots/VoltageLogFFT.png', log=True)
 # saveFFT(time, savgolOffset, 'plots/Savitzky-GolayWithOffsetFFT.png')
-saveFFT(time, savgolOffset, 'plots/Savitzky-GolayWithOffsetLogFFT.png', log=True)
+# saveFFT(time, savgolOffset, 'plots/Savitzky-GolayWithOffsetLogFFT.png', log=True)
