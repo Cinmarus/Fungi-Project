@@ -3,6 +3,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
 
+import Data_visualisation_function
+Data_visualisation_function.set_plt_defaults()
+
 filepath = 'data/data.csv' #format: time[s], voltage[muV]
 
 data = pd.read_csv(filepath)
@@ -24,5 +27,11 @@ def filter(data):
 
 time, signal = filter(data)
 
+time /= 3600 * 24
+
 plt.plot(time, signal)
-plt.show()
+plt.xlabel('Time[days]')
+plt.ylabel(r'Voltage [$\mu$V]')
+plt.xlim(0, time[-1])
+plt.savefig('plots/FilteredDataDays.png')
+# plt.show()
