@@ -220,7 +220,7 @@ def saveSpectrogramSet(time, signal, signalName, folderName='plots', extension='
 # saveSignal(time/(3600*24), voltage, 'plots/VoltageDays', save=True)
 
 # saveSpectrogramSet(time, signal=voltage, signalName='Voltage', changes=[['NFFT', [2**16, 2**18]]])
-# saveSpectrogramSet(time, flattened, '5000ptFlattened', big=True)
+saveSpectrogramSet(time, flattened, '5000ptFlattened', big=True)
 # saveSpectrogramSet(time, baseline, 'Baseline', big=True)
 # saveSpectrogramSet(time, butterworth, 'Butterworth')
 # saveSpectrogramSet(time, rollingAverage, "50PtRolling")
