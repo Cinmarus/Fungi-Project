@@ -307,13 +307,12 @@ class peak_analyser:
         plt.tight_layout()
         plt.show()
 
-
+   
     def plot_amplitude_vs_duration_distribution(self):
 
         samplingrate = 0.06
         peak_amplitudes = np.abs(self.voltage[self.df_peaks['peak_index']])
         peak_durations_seconds = self.df_peaks['width'] * samplingrate
-    
 
         plt.figure(figsize=(10, 6))
         
@@ -321,18 +320,18 @@ class peak_analyser:
         peak_durations_seconds,
         peak_amplitudes,
         'o',
-        color='black',
+        color='#47c7fc',
         alpha=0.5,
         label='Fungi Signal' 
     )
-
-        plt.xlabel("Peak Duration (s)")
-        plt.ylabel("Peak Amplitude (µV)")
-        plt.title("Peak Duration vs Peak Amplitude")
+        
+        plt.xlabel("Peak Duration (s)", fontsize=25)
+        plt.ylabel("Peak Amplitude (µV)", fontsize=25)
+        plt.title("Peak Duration vs Peak Amplitude", fontsize=25)
 
         plt.grid(True)
 
-        plt.legend(loc='upper right', fontsize=12)
+        plt.legend(loc='upper right', fontsize=20)
 
         plt.tight_layout()
         plt.show()
@@ -356,14 +355,13 @@ class peak_analyser:
         print(f"Bin Width for Amplitude: {bin_width:.4f} µV")
         print(f"Bin Width for Amplitude: {bin_width2:.4f} µV")
 
-
         plt.figure(figsize=(10, 6))
 
-        plt.hist(peak_amplitudes, bins=bins, density=True, color='green', edgecolor='black', alpha=0.7)
+        plt.hist(peak_amplitudes, bins=bins, density=True, color='#47c7fc', edgecolor='black', alpha=0.7)
 
-        plt.xlabel("Peak Amplitude (µV)")
-        plt.ylabel("Probability Density")
-        plt.title("Normalized Probability Distribution of Peak Amplitudes")
+        plt.xlabel("Peak Amplitude (µV)", fontsize=25)
+        plt.ylabel("Probability Density", fontsize=25)
+        plt.title("Normalized Probability Distribution of Peak Amplitudes", fontsize=25)
 
         plt.text(
         x=max_val, 
@@ -371,25 +369,25 @@ class peak_analyser:
         s=f"Bin width: {bin_width:.2f} µV",
         ha='right',
         va='top',
-        fontsize=10,
-        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
-    )
-        plt.text(
-        x= max_val, 
-        y=plt.gca().get_ylim()[1] * 0.9, 
-        s=f" μ: {mean:.2f} µV",
-        ha='right',
-        va='top',
-        fontsize=10,
+        fontsize=20,
         bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
     )
         plt.text(
         x= max_val, 
         y=plt.gca().get_ylim()[1] * 0.85, 
+        s=f" μ: {mean:.2f} µV",
+        ha='right',
+        va='top',
+        fontsize=20,
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
+        plt.text(
+        x= max_val, 
+        y=plt.gca().get_ylim()[1] * 0.75, 
         s=f"σ: {std:.2f} µV",
         ha='right',
         va='top',
-        fontsize=10,
+        fontsize=20,
         bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
     )
         plt.grid(True)
@@ -418,11 +416,11 @@ class peak_analyser:
 
         plt.figure(figsize=(10, 6))
         
-        plt.hist(peak_durations_seconds, bins=bins, density=True, color='blue', edgecolor='black', alpha=0.7)
+        plt.hist(peak_durations_seconds, bins=bins, density=True, color='#47c7fc', edgecolor='black', alpha=0.7)
 
-        plt.xlabel("Peak Duration (seconds)")
-        plt.ylabel("Probability Density")
-        plt.title("Normalized Probability Distribution of Peak Durations")
+        plt.xlabel("Peak Duration (seconds)", fontsize=25)
+        plt.ylabel("Probability Density", fontsize=25)
+        plt.title("Normalized Probability Distribution of Peak Durations", fontsize=25)
         plt.xlim(0, 20)
 
         plt.text(
@@ -431,25 +429,25 @@ class peak_analyser:
         s=f"Bin width: {bin_width:.2f} s",
         ha='right',
         va='top',
-        fontsize=10,
-        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
-    )
-        plt.text(
-        x= 20*0.95, 
-        y=plt.gca().get_ylim()[1] * 0.9, 
-        s=f" μ: {mean:.2f} s",
-        ha='right',
-        va='top',
-        fontsize=10,
+        fontsize=20,
         bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
     )
         plt.text(
         x= 20*0.95, 
         y=plt.gca().get_ylim()[1] * 0.85, 
+        s=f" μ: {mean:.2f} s",
+        ha='right',
+        va='top',
+        fontsize=20,
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
+        plt.text(
+        x= 20*0.95, 
+        y=plt.gca().get_ylim()[1] * 0.75, 
         s=f"σ: {std:.2f} s",
         ha='right',
         va='top',
-        fontsize=10,
+        fontsize=20,
         bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
     )
         plt.grid(True)
@@ -491,11 +489,11 @@ class peak_analyser:
         print(f"Bin Width for Amplitude: {bin_width2:.4f} µV/s")
        
         plt.figure(figsize=(10, 6))
-        plt.hist(climb_rates, bins=bins, density=True, color='red', edgecolor='black', alpha=0.7)
+        plt.hist(climb_rates, bins=bins, density=True, color='#47c7fc', edgecolor='black', alpha=0.7)
 
-        plt.xlabel("Peak Climb Rate (µV/s)")
-        plt.ylabel("Probability Density")
-        plt.title("Normalized Probability Distribution of Peak Climb Rates")
+        plt.xlabel("Peak Climb Rate (µV/s)", fontsize=25)
+        plt.ylabel("Probability Density", fontsize=25)
+        plt.title("Normalized Probability Distribution of Peak Climb Rates", fontsize=25)
 
         plt.text(
         x=max_val, 
@@ -503,25 +501,25 @@ class peak_analyser:
         s=f"Bin width: {bin_width:.2f} µV/s",
         ha='right',
         va='top',
-        fontsize=10,
-        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
-    )
-        plt.text(
-        x= max_val, 
-        y=plt.gca().get_ylim()[1] * 0.9, 
-        s=f" μ: {mean:.2f} µV/s",
-        ha='right',
-        va='top',
-        fontsize=10,
+        fontsize=20,
         bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
     )
         plt.text(
         x= max_val, 
         y=plt.gca().get_ylim()[1] * 0.85, 
+        s=f" μ: {mean:.2f} µV/s",
+        ha='right',
+        va='top',
+        fontsize=20,
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
+        plt.text(
+        x= max_val, 
+        y=plt.gca().get_ylim()[1] * 0.75, 
         s=f"σ: {std:.2f} µV/s",
         ha='right',
         va='top',
-        fontsize=10,
+        fontsize=20,
         bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
     )
         plt.grid(True)
@@ -560,7 +558,7 @@ class peak_analyser:
             print(f"Bin Width for Amplitude: {bin_width2:.4f} s")
 
             plt.figure(figsize=(10, 6))
-            plt.hist(amplitudes, bins=bins, density=True, color='blue', edgecolor='black', alpha=0.7)
+            plt.hist(amplitudes, bins=bins, density=True, color='#47c7fc', edgecolor='black', alpha=0.7)
             plt.xlabel("Peak Amplitude (µV)")
             plt.ylabel("Probability Density")
             plt.title(f"Day {day + 1} - Amplitude Distribution")
@@ -642,7 +640,7 @@ class peak_analyser:
             
 
             plt.figure(figsize=(10, 6))
-            plt.hist(peak_durations_seconds, bins=bins, density=True, color='blue', edgecolor='black', alpha=0.7)
+            plt.hist(peak_durations_seconds, bins=bins, density=True, color='#47c7fc', edgecolor='black', alpha=0.7)
             plt.xlabel("Peak Duration (s)")
             plt.ylabel("Probability Density")
             plt.title(f"Day {day + 1} - Duration Distribution")
@@ -735,7 +733,7 @@ class peak_analyser:
             print(f"Bin Width for Amplitude: {bin_width2:.4f} µV/s")
         
             plt.figure(figsize=(10, 6))
-            plt.hist(climb_rates, bins=bins, density=True, color='blue', edgecolor='black', alpha=0.7)
+            plt.hist(climb_rates, bins=bins, density=True, color='#47c7fc', edgecolor='black', alpha=0.7)
             plt.xlabel("Peak Climb Rate (µV/s)")
             plt.ylabel("Probability Density")
             plt.title(f"Day {day + 1} - Climb Rate Distribution")
@@ -782,3 +780,50 @@ class peak_analyser:
             plt.show()
 
 
+    def plot_combined_amplitude_distribution(self, bin_width=10):
+        """
+        Plot the distribution of spike amplitudes for each day in a single figure,
+        with transparency and a legend to distinguish days.
+        """
+        total_days = 9  # Adjust according to your dataset
+        peak_times = self.time_numeric.iloc[self.df_peaks['peak_index']].values - self.time_numeric.iloc[0]
+        colors = plt.cm.viridis(np.linspace(0, 1, total_days))  # Color palette
+
+        plt.figure(figsize=(12, 8))
+
+        for day in range(total_days):
+            start_time = day * 86400
+            end_time = min((day + 1) * 86400, self.time_numeric.iloc[-1] - self.time_numeric.iloc[0])
+            mask = (peak_times >= start_time) & (peak_times < end_time)
+            valid_indices = np.where(mask)[0]
+            day_peaks = self.df_peaks.iloc[valid_indices]
+
+            if day_peaks.empty:
+                print(f"No peaks found for day {day + 1}.")
+                continue
+
+            amplitudes = np.abs(self.voltage.iloc[day_peaks['peak_index']])
+            min_val = np.min(amplitudes)
+            max_val = np.max(amplitudes)
+            bins = round((max_val - min_val) / bin_width)
+
+            if bins < 1:
+                bins = 1  # Ensure at least one bin
+
+            plt.hist(
+                amplitudes,
+                bins=bins,
+                density=True,
+                alpha=0.4,  # Transparency
+                label=f"Day {day + 1}",
+                color=colors[day],
+                edgecolor='black'
+            )
+
+        plt.xlabel("Peak Amplitude (µV)")
+        plt.ylabel("Probability Density")
+        plt.title("Combined Daily Amplitude Distributions")
+        plt.legend(title="Day", loc='upper right')
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
