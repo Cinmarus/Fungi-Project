@@ -217,10 +217,10 @@ def saveSpectrogramSet(time, signal, signalName, folderName='plots', extension='
 # plotSpectrogram(time, fourier, 'Fourier')
 # plotSpectrogram(time, multiFourier, "MultiFourier")
 
-# saveSignal(time/(3600*24), voltage, 'plots/VoltageDays', save=True)
+saveSignal(time/(3600*24), voltage, 'plots/VoltageDays', save=True)
 
 # saveSpectrogramSet(time, signal=voltage, signalName='Voltage', changes=[['NFFT', [2**16, 2**18]]])
-saveSpectrogramSet(time, flattened, '5000ptFlattened', big=True)
+# saveSpectrogramSet(time, flattened, '5000ptFlattened', big=True)
 # saveSpectrogramSet(time, baseline, 'Baseline', big=True)
 # saveSpectrogramSet(time, butterworth, 'Butterworth')
 # saveSpectrogramSet(time, rollingAverage, "50PtRolling")
@@ -234,9 +234,9 @@ saveSpectrogramSet(time, flattened, '5000ptFlattened', big=True)
 
 # saveSpectrogram(time, multiFourier, 'plots/MultiFourierSpectrogramLogZoom', log=True, zoomToInterestingFrequencies=True)
 # saveSpectrogram(time, voltage, 'plots/VoltageSpectrogramLogZoom', log=True, zoomToInterestingFrequencies=True)
-# saveSpectrogramSet(time, voltage, 'Voltage', big=True)
+saveSpectrogramSet(time, voltage, 'Voltage', big=True)
 # saveSpectrogramSet(time, savgol, 'Savitzky-Golay', big=True)
-# saveSpectrogramSet(time, savgolOffset, 'Savitzky-GolayWithOffset', big=True)
+saveSpectrogramSet(time, savgolOffset, 'Savitzky-GolayWithOffset', big=True)
 
 # saveFFT(time, voltage, 'plots/VoltageLogFFT.png', log=True)
 # saveFFT(time, savgolOffset, 'plots/Savitzky-GolayWithOffsetFFT.png')

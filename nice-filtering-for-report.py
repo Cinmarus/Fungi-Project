@@ -6,7 +6,7 @@ from scipy.signal import savgol_filter
 import Data_visualisation_function
 Data_visualisation_function.set_plt_defaults()
 
-filepath = 'data/data.csv' #format: time[s], voltage[muV]
+filepath = 'data/new_data.csv' #format: time[s], voltage[muV]
 
 data = pd.read_csv(filepath)
 
